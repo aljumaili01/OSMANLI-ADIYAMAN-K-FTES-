@@ -29,8 +29,8 @@ import {
   statusClassName,
   updateAdminPassword,
   updateFranchisePackage,
-} from "./shared/data.js?v=20260821-v7";
-import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260821-v7";
+} from "./shared/data.js?v=20260821-v12";
+import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260821-v12";
 const EXPECTED_BUILD_ADMIN = "20260821-v6";
 if (typeof CURRENT_DATA_VERSION === "string" && CURRENT_DATA_VERSION !== EXPECTED_BUILD_ADMIN) {
   try { window.location.reload(true); } catch (_) { location.href = location.href; }
@@ -1644,14 +1644,10 @@ function renderApplications() {
   let rowsHtml = "";
   for (let i = 0; i < apps.length; i++) {
     const application = apps[i];
-    let statusButtonsHtml = "";
+    let statusOptionsHtml = "";
     for (let j = 0; j < statusList.length; j++) {
       const status = statusList[j];
-      const btnClass = application.status === status
-        ? "border-[#6B1818] bg-[#6B1818] text-white"
-        : "border-stone-200 bg-white text-stone-600";
-      statusButtonsHtml = statusButtonsHtml +
-        "<button type=\"button\" data-application-id=\"" + escapeAttribute(application.id) + "\" data-status=\"" + escapeAttribute(status) + "\" class=\"rounded-full border px-3 py-1 text-xs font-semibold " + btnClass + "\">" + escapeHtml(status) + "</button>";
+      statusOptionsHtml += "<option value=\"" + escapeAttribute(status) + "\" " + (application.status === status ? "selected" : "") + ">" + escapeHtml(status) + "</option>";
     }
     rowsHtml = rowsHtml +
       "<tr class=\"border-b border-stone-100 align-top\">" +
@@ -1666,7 +1662,24 @@ function renderApplications() {
           "<span class=\"status-pill " + statusClassName(application.status) + "\">" + escapeHtml(application.status) + "</span>" +
         "</td>" +
         "<td class=\"px-4 py-4\">" +
-          "<div class=\"flex flex-wrap gap-2\">" + statusButtonsHtml + "</div>" +
+          "<details class=\"min-w-[320px] rounded-2xl border border-stone-200 bg-white p-3\">" +
+            "<summary class=\"cursor-pointer text-sm font-bold text-[#6B1818]\">Tam Yetkiyle Düzenle</summary>" +
+            "<form data-application-edit=\"" + escapeAttribute(application.id) + "\" class=\"mt-4 grid gap-3\">" +
+              "<input name=\"fullName\" value=\"" + escapeAttribute(application.fullName || "") + "\" placeholder=\"Ad Soyad\" class=\"rounded-xl border border-stone-200 px-3 py-2\" required />" +
+              "<input name=\"phone\" value=\"" + escapeAttribute(application.phone || "") + "\" placeholder=\"Telefon\" class=\"rounded-xl border border-stone-200 px-3 py-2\" />" +
+              "<input name=\"email\" type=\"email\" value=\"" + escapeAttribute(application.email || "") + "\" placeholder=\"E-posta\" class=\"rounded-xl border border-stone-200 px-3 py-2\" />" +
+              "<input name=\"cityDistrict\" value=\"" + escapeAttribute(application.cityDistrict || "") + "\" placeholder=\"Şehir / İlçe\" class=\"rounded-xl border border-stone-200 px-3 py-2\" />" +
+              "<input name=\"packageName\" value=\"" + escapeAttribute(application.packageName || "") + "\" placeholder=\"Paket adı\" class=\"rounded-xl border border-stone-200 px-3 py-2\" />" +
+              "<input name=\"packageId\" value=\"" + escapeAttribute(application.packageId || "") + "\" placeholder=\"Paket kimliği\" class=\"rounded-xl border border-stone-200 px-3 py-2\" />" +
+              "<textarea name=\"message\" rows=\"4\" placeholder=\"Başvuru mesajı / yönetici notu\" class=\"rounded-xl border border-stone-200 px-3 py-2\">" + escapeHtml(application.message || "") + "</textarea>" +
+              "<input name=\"submittedAt\" type=\"datetime-local\" value=\"" + escapeAttribute(toDateTimeLocalValue(application.submittedAt)) + "\" class=\"rounded-xl border border-stone-200 px-3 py-2\" />" +
+              "<select name=\"status\" class=\"rounded-xl border border-stone-200 px-3 py-2\">" + statusOptionsHtml + "</select>" +
+              "<div class=\"flex gap-2\">" +
+                "<button type=\"submit\" class=\"flex-1 rounded-xl bg-[#6B1818] px-4 py-2 text-sm font-bold text-white\">Değişiklikleri Kaydet</button>" +
+                "<button type=\"button\" data-delete-application=\"" + escapeAttribute(application.id) + "\" class=\"rounded-xl bg-red-50 px-4 py-2 text-sm font-bold text-red-700\">Sil</button>" +
+              "</div>" +
+            "</form>" +
+          "</details>" +
         "</td>" +
       "</tr>";
   }
@@ -1677,24 +1690,52 @@ function renderApplications() {
   elements.applicationTable.innerHTML = rowsHtml;
 
   try {
-    elements.applicationTable.querySelectorAll("[data-application-id]").forEach(function (button) {
+    elements.applicationTable.querySelectorAll("[data-application-edit]").forEach(function (form) {
       try {
-        button.addEventListener("click", function () {
-          updateApplicationStatus(
-            button.dataset.applicationId ? button.dataset.applicationId : "",
-            button.dataset.status ? button.dataset.status : ""
-          );
-        });
+        form.addEventListener("submit", handleApplicationEdit);
       } catch (_) {}
+    });
+    elements.applicationTable.querySelectorAll("[data-delete-application]").forEach(function (button) {
+      try { button.addEventListener("click", function () { deleteApplicationFull(button.dataset.deleteApplication || ""); }); } catch (_) {}
     });
   } catch (_) {}
 }
-function updateApplicationStatus(applicationId, status) {
-  if (!applicationId || !status) return;
+function toDateTimeLocalValue(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const pad = (num) => String(num).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
 
-  state.applications = state.applications.map((application) =>
-    application.id === applicationId ? { ...application, status } : application
-  );
+function handleApplicationEdit(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  if (!(form instanceof HTMLFormElement)) return;
+  const applicationId = form.dataset.applicationEdit || "";
+  const data = new FormData(form);
+  state.applications = state.applications.map((application) => application.id === applicationId ? {
+    ...application,
+    fullName: String(data.get("fullName") || "").trim(),
+    phone: String(data.get("phone") || "").trim(),
+    email: String(data.get("email") || "").trim(),
+    cityDistrict: String(data.get("cityDistrict") || "").trim(),
+    packageName: String(data.get("packageName") || "").trim(),
+    packageId: String(data.get("packageId") || "").trim(),
+    message: String(data.get("message") || "").trim(),
+    submittedAt: String(data.get("submittedAt") || "").trim() || application.submittedAt,
+    status: String(data.get("status") || "Yeni").trim(),
+  } : application);
+  saveApplications(state.applications);
+  renderDashboard();
+}
+
+function deleteApplicationFull(applicationId) {
+  if (!applicationId) return;
+  const application = state.applications.find((item) => item.id === applicationId);
+  const label = application?.fullName || "Seçili başvuru";
+  if (!window.confirm(`⚠️ ${label} başvurusu kalıcı olarak silinsin mi?\nBu işlem geri alınamaz.`)) return;
+  state.applications = state.applications.filter((item) => item.id !== applicationId);
   saveApplications(state.applications);
   renderDashboard();
 }

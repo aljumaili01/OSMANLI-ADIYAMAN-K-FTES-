@@ -605,7 +605,7 @@ export const defaultPageTitles = {
   "iletisim.html": { title: "İletişim | Osmanlı Adıyaman Çiğköfte", headerTitle: "", headerSubtitle: "" },
 };
 
-export const applicationStatuses = ["Yeni", "İncelendi", "İletişime Geçildi"];
+export const applicationStatuses = ["Yeni", "İncelendi", "İletişime Geçildi", "Onaylandı", "Reddedildi", "Tamamlandı"];
 
 export const defaultAdminAuth = {
   username: "admin",

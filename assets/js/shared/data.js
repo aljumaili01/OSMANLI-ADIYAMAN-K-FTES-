@@ -1062,7 +1062,15 @@ export function getProducts() {
   const raw = safeStorageGet(STORAGE_KEYS.products, null);
   if (raw !== null) {
     const fromStorage = storageReadCollection(STORAGE_KEYS.products, defaultProducts);
-    if (Array.isArray(fromStorage)) return fromStorage;
+    if (Array.isArray(fromStorage) && fromStorage.length > 0) return fromStorage;
+    if (Array.isArray(fromStorage)) {
+      const buildCheck = safeStorageGet(STORAGE_KEYS.buildVersion, null);
+      if (buildCheck === null) {
+        try { seedIfMissing(STORAGE_KEYS.products, defaultProducts); } catch (_) {}
+        return Array.isArray(defaultProducts) ? defaultProducts.slice() : [];
+      }
+      return fromStorage;
+    }
   }
   try { seedIfMissing(STORAGE_KEYS.products, defaultProducts); } catch (_) { /* ignore */ }
   return Array.isArray(defaultProducts) ? defaultProducts.slice() : [];
@@ -1084,7 +1092,15 @@ export function getDealers() {
   const raw = safeStorageGet(STORAGE_KEYS.dealers, null);
   if (raw !== null) {
     const fromStorage = storageReadCollection(STORAGE_KEYS.dealers, defaultDealers);
-    if (Array.isArray(fromStorage)) return fromStorage;
+    if (Array.isArray(fromStorage) && fromStorage.length > 0) return fromStorage;
+    if (Array.isArray(fromStorage)) {
+      const buildCheck = safeStorageGet(STORAGE_KEYS.buildVersion, null);
+      if (buildCheck === null) {
+        try { seedIfMissing(STORAGE_KEYS.dealers, defaultDealers); } catch (_) {}
+        return Array.isArray(defaultDealers) ? defaultDealers.slice() : [];
+      }
+      return fromStorage;
+    }
   }
   try { seedIfMissing(STORAGE_KEYS.dealers, defaultDealers); } catch (_) { /* ignore */ }
   return Array.isArray(defaultDealers) ? defaultDealers.slice() : [];
@@ -1106,7 +1122,15 @@ export function getApplications() {
   const raw = safeStorageGet(STORAGE_KEYS.applications, null);
   if (raw !== null) {
     const fromStorage = storageReadCollection(STORAGE_KEYS.applications, defaultApplications);
-    if (Array.isArray(fromStorage)) return fromStorage;
+    if (Array.isArray(fromStorage) && fromStorage.length > 0) return fromStorage;
+    if (Array.isArray(fromStorage)) {
+      const buildCheck = safeStorageGet(STORAGE_KEYS.buildVersion, null);
+      if (buildCheck === null) {
+        try { seedIfMissing(STORAGE_KEYS.applications, defaultApplications); } catch (_) {}
+        return Array.isArray(defaultApplications) ? defaultApplications.slice() : [];
+      }
+      return fromStorage;
+    }
   }
   try { seedIfMissing(STORAGE_KEYS.applications, defaultApplications); } catch (_) { /* ignore */ }
   return Array.isArray(defaultApplications) ? defaultApplications.slice() : [];
@@ -1138,13 +1162,43 @@ export function createApplication(payload) {
 
 export function getSiteContent() {
   const stored = storageReadObject(STORAGE_KEYS.siteContent, defaultSiteContent);
+  function looksBrokenCounter(val) {
+    if (typeof val !== "string") return true;
+    const trimmed = val.trim();
+    if (!trimmed) return true;
+    if (/^0\b/.test(trimmed)) return true;
+    return false;
+  }
+  const storedHasBrokenCounters = stored && (
+    looksBrokenCounter(stored.heroCardProductValue) ||
+    looksBrokenCounter(stored.heroCardDealerValue) ||
+    looksBrokenCounter(stored.heroCardApplicationValue)
+  );
   const hasAllKeys = stored &&
     typeof stored.brandName === "string" &&
-    typeof stored.heroCardProductValue === "string" &&
     typeof stored.slogan === "string";
-  if (hasAllKeys) return stored;
-  try { seedIfMissing(STORAGE_KEYS.siteContent, defaultSiteContent); } catch (_) { /* ignore */ }
-  return { ...defaultSiteContent, ...stored };
+  if (hasAllKeys && !storedHasBrokenCounters) return stored;
+  try {
+    if (storedHasBrokenCounters) {
+      const repaired = {
+        ...defaultSiteContent,
+        ...(stored || {}),
+        heroCardProductValue:
+          (!looksBrokenCounter(stored?.heroCardProductValue) && stored?.heroCardProductValue) ||
+          defaultSiteContent.heroCardProductValue,
+        heroCardDealerValue:
+          (!looksBrokenCounter(stored?.heroCardDealerValue) && stored?.heroCardDealerValue) ||
+          defaultSiteContent.heroCardDealerValue,
+        heroCardApplicationValue:
+          (!looksBrokenCounter(stored?.heroCardApplicationValue) && stored?.heroCardApplicationValue) ||
+          defaultSiteContent.heroCardApplicationValue,
+      };
+      try { storageWriteJson(STORAGE_KEYS.siteContent, repaired); } catch (_) {}
+      return repaired;
+    }
+    seedIfMissing(STORAGE_KEYS.siteContent, defaultSiteContent);
+  } catch (_) { /* ignore */ }
+  return { ...defaultSiteContent, ...(stored || {}) };
 }
 
 export function saveSiteContent(content) {

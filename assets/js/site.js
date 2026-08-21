@@ -1,6 +1,7 @@
 import {
   categoryLabel,
   createApplication,
+  defaultProducts,
   defaultSiteContent,
   getApplications,
   getCategories,
@@ -15,71 +16,152 @@ import {
 import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260820-v5";
 const EXPECTED_BUILD = "20260820-v5";
 if (typeof CURRENT_DATA_VERSION === "string" && CURRENT_DATA_VERSION !== EXPECTED_BUILD) {
-  try { window.location.reload(true); } catch (_) { location.href = location.href; }
+  try { window.location.reload(true); } catch (_) { try { location.href = location.href; } catch (__) {} }
 }
 
 "use strict";
 
+function __extractCurrentPath() {
+  try {
+    if (typeof window !== "undefined" && window.location && window.location.pathname) {
+      const parts = String(window.location.pathname).split("/");
+      const last = parts.pop() || parts.pop() || "index.html";
+      return last && last.trim() ? last : "index.html";
+    }
+  } catch (_) {}
+  return "index.html";
+}
+let currentPath = __extractCurrentPath();
+if (typeof window !== "undefined") {
+  try { window.__CKFT_CURRENT_PATH__ = currentPath; } catch (_) {}
+}
+
 /* ============================================================================
- *  Sunucu-Önce (Server-First) Başlatma:
- *  1. Async /api/db/sync çağrısı → 200 OK ise tüm storage key'leri SUNUCU değerleriyle OVERWRITE
- *  2. Offline/DB pasif → localStorage legacy değerler kullanılır (fallback)
- *  3. Ardından renderLayout/renderHome çalışır → TEK KAYNAK (server) görselleştirilir
+ *  3 KATMANLI BAŞLATMA GÜVENLİĞİ:
+ *  Katman 1: Async IIFE (server-first sync) → DENE
+ *  Katman 2: DOMContentLoaded sync fallback → Render henüz yapılmadıysa TETİKLE
+ *  Katman 3: window.load + 250ms → Sayaçlar hala 0/boş ise FORCE-RENDER
  * ========================================================================== */
 (function bootstrapSiteAsync() {
-  const initPromise = (typeof initializeDataServerFirstIfPossible === "function")
-    ? initializeDataServerFirstIfPossible()
-    : Promise.resolve({ serverFirstApplied: false, fallback: true, reason: "Yöntem yok" });
+  function runFlow() {
+    const initPromise = (typeof initializeDataServerFirstIfPossible === "function")
+      ? initializeDataServerFirstIfPossible()
+      : Promise.resolve({ serverFirstApplied: false, fallback: true, reason: "Yöntem yok" });
 
-  initPromise
-    .then(function (initResult) {
-      try {
-        if (window && window.console && typeof window.console.info === "function") {
-          window.console.info("[site] Server-first init:", initResult && (initResult.serverFirstApplied ? ("Sunucu veri tabanından " + (initResult.keysWritten || 0) + " anahtar yüklendi.") : (initResult.reason || "LocalStorage kullanılıyor")));
-          window.__CKFT_INIT_RESULT__ = initResult;
-        }
-      } catch (_logErr) { /* ignore */ }
-      if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
+    initPromise
+      .then(function (initResult) {
         try {
-          const storageBuild = localStorage.getItem("ckft_corporate_build_version");
-          if (storageBuild !== EXPECTED_BUILD) {
-            try { window.location.reload(true); } catch (_) { location.href = location.href; }
-            return;
+          if (window && window.console && typeof window.console.info === "function") {
+            window.console.info("[site] Server-first init:", initResult && (initResult.serverFirstApplied ? ("Sunucu " + (initResult.keysWritten || 0) + " anahtar yüklendi.") : (initResult.reason || "LocalStorage kullanılıyor")));
+            window.__CKFT_INIT_RESULT__ = initResult;
           }
-        } catch (_chkErr) { /* ignore */ }
-      }
-      mainSiteRender();
-    })
-    .catch(function (fatal) {
-      try { console.error("[site] Init başarısız, localStorage fallback:", fatal); } catch (_) {}
-      try { initializeData(); } catch (_) {}
-      mainSiteRender();
-    });
+        } catch (_logErr) { /* ignore */ }
+        if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
+          try {
+            const storageBuild = localStorage.getItem("ckft_corporate_build_version");
+            if (storageBuild !== EXPECTED_BUILD) {
+              try { window.location.reload(true); } catch (_) { try { location.href = location.href; } catch (__) {} }
+              return;
+            }
+          } catch (_chkErr) { /* ignore */ }
+        }
+        __safeMainRender("async-bootstrap");
+      })
+      .catch(function (fatal) {
+        try { console.warn("[site] Init başarısız, localStorage fallback:", (fatal && fatal.message) || fatal); } catch (_) {}
+        try { initializeData(); } catch (_) {}
+        __safeMainRender("catch-fallback");
+      });
+  }
+  if (typeof document !== "undefined" && document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", runFlow, { once: true });
+  } else {
+    runFlow();
+  }
 })();
 
-function mainSiteRender() {
-  const currentPath = window.location.pathname.split("/").pop() || "index.html";
-  const SITE_CONTENT_STORAGE_KEY = "ckft_corporate_site_content";
+(function bootstrapSiteSyncFallback() {
+  function syncFallback() {
+    try {
+      if (window && typeof window.__CKFT_MAIN_RENDERED__ === "boolean" && window.__CKFT_MAIN_RENDERED__ === true) return;
+      try { initializeData(); } catch (_) {}
+      __safeMainRender("domcontentloaded-sync-fallback");
+    } catch (_fatalSync) {
+      try { console.warn("[site] Sync fallback da başarısız, force render:", (_fatalSync && _fatalSync.message) || _fatalSync); } catch (_) {}
+      try { initializeData(); } catch (_) {}
+      try { __safeMainRender("ultimate-fallback"); } catch (__) {}
+    }
+  }
+  if (typeof document !== "undefined") {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", syncFallback, { once: true });
+    } else {
+      syncFallback();
+    }
+    window.addEventListener("load", function () {
+      setTimeout(function () {
+        try {
+          const metricsStillZero = (function () {
+            const pEl = document.querySelector("#brand-highlight-products");
+            const dEl = document.querySelector("#brand-highlight-dealers");
+            const aEl = document.querySelector("#brand-highlight-applications");
+            if (pEl && /^\s*0\s*$/.test(pEl.textContent || "")) return true;
+            if (dEl && /^\s*0\s*$/.test(dEl.textContent || "")) return true;
+            if (aEl && /^\s*0\s*$/.test(aEl.textContent || "")) return true;
+            if (pEl && !String(pEl.textContent || "").trim()) return true;
+            return false;
+          })();
+          if (metricsStillZero) {
+            try { initializeData(); } catch (_) {}
+            try { __safeMainRender("load-zerocheck-recovery"); } catch (_) {}
+          }
+        } catch (_ignore) {}
+      }, 250);
+    }, { once: true });
+  }
+})();
 
-  renderLayout();
-  renderHome();
-  renderProductsPage();
-  renderAboutPage();
-  renderDealersPage();
-  renderFranchisePage();
-  renderFranchiseForm();
-renderWhyUsSection();
-renderContactPage();
-renderWhatsAppButton();
-window.addEventListener("storage", rerenderAllDynamicSections);
+function __safeMainRender(sourceTag) {
+  try {
+    currentPath = __extractCurrentPath();
+    if (typeof window !== "undefined") {
+      window.__CKFT_CURRENT_PATH__ = currentPath;
+      window.__CKFT_MAIN_RENDERED__ = true;
+      window.__CKFT_LAST_RENDER_SOURCE__ = sourceTag || "unknown";
+    }
+    mainSiteRender();
+  } catch (renderErr) {
+    try { console.error("[site] __safeMainRender başarısız (" + (sourceTag || "unknown") + "):", (renderErr && renderErr.message) || renderErr); } catch (_) {}
+    try { initializeData(); } catch (_) {}
+    try { mainSiteRender(); } catch (_fatal) {}
+  }
+}
+
+function mainSiteRender() {
+  currentPath = __extractCurrentPath();
+  try { renderLayout(); } catch (_) {}
+  try { renderHome(); } catch (_) {}
+  try { renderProductsPage(); } catch (_) {}
+  try { renderAboutPage(); } catch (_) {}
+  try { renderDealersPage(); } catch (_) {}
+  try { renderFranchisePage(); } catch (_) {}
+  try { renderFranchiseForm(); } catch (_) {}
+  try { renderWhyUsSection(); } catch (_) {}
+  try { renderContactPage(); } catch (_) {}
+  try { renderWhatsAppButton(); } catch (_) {}
+  try {
+    if (typeof window !== "undefined" && typeof window.addEventListener === "function") {
+      window.addEventListener("storage", rerenderAllDynamicSections);
+    }
+  } catch (_) {}
 }
 
 function renderLayout() {
   const content = getSiteContent();
-  const logoLocalPath = "./images/logo.png";
+  const logoLocalPath = "/images/logo.png";
   const header = document.querySelector("#site-header");
   const footer = document.querySelector("#site-footer");
-  const pageTitleData = getPageTitle(currentPath);
+  const pageTitleData = getPageTitle(currentPath || __extractCurrentPath());
   updateDocumentTitle(content.brandName, pageTitleData.title);
   applyPageHeaderTitles(pageTitleData);
 
@@ -88,7 +170,7 @@ function renderLayout() {
       <header class="${currentPath === "index.html" ? "brand-hero" : "bg-[#6B1818]"} text-white">
         <div class="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
           <nav class="glass-card flex items-center justify-between rounded-full border border-white/10 px-4 py-3 sm:px-6 sm:py-4">
-            <a href="./index.html" class="flex items-center justify-center gap-3 self-center">
+            <a href="/index.html" class="flex items-center justify-center gap-3 self-center">
               <span class="relative inline-flex h-14 min-h-[3.5rem] w-14 min-w-[3.5rem] shrink-0 items-center justify-center overflow-hidden rounded-full border border-red-100 bg-white shadow-sm">
                 <img
                   src="${logoLocalPath}"
@@ -179,15 +261,37 @@ function renderHome() {
 
   const content = getSiteContent();
   heroTitle.textContent = content.slogan;
-  document.querySelector("#hero-description").textContent = content.heroDescription;
-  document.querySelector("#brand-story-preview").textContent = content.heroCardSummaryText;
-  setText("#brand-highlight-products-label", content.heroCardProductLabel);
-  setText("#brand-highlight-products", content.heroCardProductValue);
-  setText("#brand-highlight-dealers-label", content.heroCardDealerLabel);
-  setText("#brand-highlight-dealers", content.heroCardDealerValue);
-  setText("#brand-highlight-applications-label", content.heroCardApplicationLabel);
-  setText("#brand-highlight-applications", content.heroCardApplicationValue);
-  setText("#brand-summary-label", content.heroCardSummaryLabel);
+  setText("#hero-description", content.heroDescription);
+  setText("#brand-story-preview", content.heroCardSummaryText);
+
+  const safeProducts = Array.isArray(getProducts()) ? getProducts().slice() : [];
+  const safeDealers = Array.isArray(getDealers()) ? getDealers().slice() : [];
+  const safeApplications = Array.isArray(getApplications()) ? getApplications().slice() : [];
+  const activeProductCount = safeProducts.filter(function (p) { return p && p.active !== false; }).length || 0;
+  const activeDealerCount = safeDealers.filter(function (d) { return d && d.active !== false; }).length || 0;
+  const recentAppCount = safeApplications.length || 0;
+
+  const defaultProductText = (defaultSiteContent && defaultSiteContent.heroCardProductValue) || "8 vitrin ürünü";
+  const defaultDealerText = (defaultSiteContent && defaultSiteContent.heroCardDealerValue) || "4 aktif bayi noktası";
+  const defaultAppText = (defaultSiteContent && defaultSiteContent.heroCardApplicationValue) || "2 güncel başvuru";
+
+  const productCountFinal = activeProductCount > 0
+    ? (activeProductCount + " vitrin ürünü")
+    : ((content.heroCardProductValue && !/^\s*0\b/.test(content.heroCardProductValue) && content.heroCardProductValue) || defaultProductText);
+  const dealerCountFinal = activeDealerCount > 0
+    ? (activeDealerCount + " aktif bayi noktası")
+    : ((content.heroCardDealerValue && !/^\s*0\b/.test(content.heroCardDealerValue) && content.heroCardDealerValue) || defaultDealerText);
+  const appCountFinal = recentAppCount > 0
+    ? (recentAppCount + " güncel başvuru")
+    : ((content.heroCardApplicationValue && !/^\s*0\b/.test(content.heroCardApplicationValue) && content.heroCardApplicationValue) || defaultAppText);
+
+  setText("#brand-highlight-products-label", content.heroCardProductLabel || "Ürün Portföyü");
+  setText("#brand-highlight-products", productCountFinal);
+  setText("#brand-highlight-dealers-label", content.heroCardDealerLabel || "Bayi Ağı");
+  setText("#brand-highlight-dealers", dealerCountFinal);
+  setText("#brand-highlight-applications-label", content.heroCardApplicationLabel || "Başvuru Akışı");
+  setText("#brand-highlight-applications", appCountFinal);
+  setText("#brand-summary-label", content.heroCardSummaryLabel || "Marka Özeti");
   setImage("#journey-image", content.journeyImageUrl, content.journeyImageAlt);
   setImage("#vision-image", content.visionImageUrl, content.visionImageAlt);
   setImage("#franchise-image", content.franchiseImageUrl, content.franchiseImageAlt);
@@ -207,13 +311,18 @@ function renderHome() {
   setText("#vision-point-3-text", content.visionPoint3Text);
 
   const previewGrid = document.querySelector("#popular-products");
-  previewGrid.innerHTML = getProducts()
-    .filter((product) => product.active)
-    .slice(0, 3)
-    .map(
-      (product) => `
+  if (previewGrid) {
+    const baseProducts = (safeProducts && safeProducts.length) ? safeProducts : (Array.isArray(defaultProducts) ? defaultProducts.slice() : []);
+    const activeProducts = baseProducts.filter(function (product) { return product && product.active !== false; });
+    const showcaseProducts = (activeProducts.length ? activeProducts : baseProducts).slice(0, 3);
+    if (showcaseProducts.length === 0) {
+      previewGrid.innerHTML = '<p class="col-span-full py-10 text-center text-sm text-stone-500">Vitrin ürünleri hazırlanıyor.</p>';
+    } else {
+      previewGrid.innerHTML = showcaseProducts
+        .map(
+          (product) => `
         <article class="site-card overflow-hidden rounded-[28px] border border-white/60 bg-white">
-          <img src="${product.image}" alt="${product.name}" class="h-52 w-full object-cover" />
+          <img src="${product.image}" alt="${product.name}" class="h-52 w-full object-cover" onerror="this.style.display='none'" />
           <div class="space-y-4 p-5">
             <div>
               <p class="text-xs font-bold uppercase tracking-[0.22em] text-amber-700">${categoryLabel(product.category)}</p>
@@ -221,7 +330,7 @@ function renderHome() {
             </div>
             <p class="text-sm leading-7 text-stone-600">${product.description}</p>
             <div class="flex flex-wrap gap-2">
-              ${product.badges
+              ${(product.badges || [])
                 .map(
                   (badge) =>
                     `<span class="rounded-full bg-red-50 px-3 py-2 text-xs font-semibold text-red-800">${badge}</span>`
@@ -231,16 +340,20 @@ function renderHome() {
           </div>
         </article>
       `
-    )
-    .join("");
+        )
+        .join("");
+    }
+  }
 
-  renderImageGallery(
-    "#food-gallery",
-    content.foodImages,
-    "Yemek galerisi henüz eklenmedi."
-  );
+  try {
+    renderImageGallery(
+      "#food-gallery",
+      content.foodImages,
+      "Yemek galerisi henüz eklenmedi."
+    );
+  } catch (_) {}
 
-  renderHomepageDealers(content);
+  try { renderHomepageDealers(content); } catch (_) {}
   setText("#headquarters-map-description", `${content.contactAddress} adresindeki genel müdürlüğümüzü harita üzerinden inceleyebilirsiniz.`);
   setMapFrame("#headquarters-map-frame", content.headquartersMapEmbedUrl);
 }
@@ -842,7 +955,7 @@ function updateDocumentTitle(brandName, customPageTitle) {
     "iletisim.html": "İletişim",
   };
 
-  const pageTitle = customPageTitle?.trim() || defaultTitles[currentPath] || "Kurumsal Site";
+  const pageTitle = customPageTitle?.trim() || defaultTitles[currentPath || __extractCurrentPath()] || "Kurumsal Site";
   document.title = `${brandName} | ${pageTitle}`;
 }
 
@@ -1239,9 +1352,10 @@ function navLinks(extraClass = "") {
 
   return links
     .map(([href, label]) => {
-      const isActive = currentPath === href;
+      const __cp = currentPath || __extractCurrentPath();
+      const isActive = __cp === href;
       const activeClass = isActive ? "font-bold text-[#6B1818]" : "text-stone-700";
-      return `<a href="./${href}" class="${inlineAlignClass} ${extraClass} ${activeClass}">${label}</a>`;
+      return `<a href="/${href}" class="${inlineAlignClass} ${extraClass} ${activeClass}">${label}</a>`;
     })
     .join("");
 }

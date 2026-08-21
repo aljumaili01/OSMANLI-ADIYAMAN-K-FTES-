@@ -1163,7 +1163,6 @@ export function getDealers() {
       const normalized = normalizeDealerNames(fromStorage);
       if (normalized.some((dealer, index) => dealer !== fromStorage[index])) {
         try { storageWriteJson(STORAGE_KEYS.dealers, normalized); } catch (_) {}
-        _pySyncWriteBestEffort("dealers", normalized);
       }
       return normalized;
     }

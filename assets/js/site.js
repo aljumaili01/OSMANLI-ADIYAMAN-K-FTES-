@@ -12,8 +12,8 @@ import {
   getSiteContent,
   initializeData,
   initializeDataServerFirstIfPossible,
-} from "./shared/data.js?v=20260821-v18";
-import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260821-v18";
+} from "./shared/data.js?v=20260821-v19";
+import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260821-v19";
 const EXPECTED_BUILD = "20260821-v6";
 if (typeof CURRENT_DATA_VERSION === "string" && CURRENT_DATA_VERSION !== EXPECTED_BUILD) {
   try { window.location.reload(true); } catch (_) { try { location.href = location.href; } catch (__) {} }
@@ -539,10 +539,10 @@ function renderDealersPage() {
             <div class="border-t border-stone-200 bg-[#F7F4EF] p-3">
               <div class="mb-3 flex items-center justify-between gap-3 px-1">
                 <p class="text-xs font-bold uppercase tracking-[0.18em] text-amber-700">Şube Konumu</p>
-                <a href="${escapeAttr(dealer.mapEmbedUrl || '#')}" target="_blank" rel="noreferrer" class="text-xs font-bold text-[#6B1818] hover:underline">Haritada Aç</a>
+                <a href="${escapeAttr(resolveDealerMapLink(dealer))}" target="_blank" rel="noreferrer" class="text-xs font-bold text-[#6B1818] hover:underline">Haritada Aç</a>
               </div>
               <iframe
-                src="${escapeAttr(resolveMapEmbedSrc(dealer.mapEmbedUrl))}"
+                src="${escapeAttr(resolveDealerMapEmbedSrc(dealer))}"
                 title="${escapeAttr(dealer.branchName)} haritası"
                 class="h-72 w-full rounded-[22px] border border-stone-200 bg-white"
                 loading="lazy"
@@ -988,6 +988,28 @@ function resolveMapEmbedSrc(value) {
   } catch (_) {}
 
   return trimmed;
+}
+
+function dealerMapQuery(dealer) {
+  return [dealer?.branchName, dealer?.address, dealer?.district, dealer?.city]
+    .map((part) => part?.toString().trim() || "")
+    .filter(Boolean)
+    .join(", ");
+}
+
+function resolveDealerMapEmbedSrc(dealer) {
+  const resolved = resolveMapEmbedSrc(dealer?.mapEmbedUrl);
+  if (/^https:\/\/(?:www\.)?google\.[^/]+\/maps/i.test(resolved) || /^https:\/\/maps\.google\.[^/]+\/maps/i.test(resolved)) {
+    return resolved;
+  }
+  const query = dealerMapQuery(dealer);
+  return `https://maps.google.com/maps?q=${encodeURIComponent(query)}&z=16&output=embed`;
+}
+
+function resolveDealerMapLink(dealer) {
+  const raw = dealer?.mapEmbedUrl?.toString().trim() || "";
+  if (/^https:\/\//i.test(raw)) return raw;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dealerMapQuery(dealer))}`;
 }
 
 function rerenderAllDynamicSections() {

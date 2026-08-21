@@ -68,6 +68,7 @@ INSERT INTO ckft_store (store_key, payload) VALUES
 (
   'ckft_corporate_site_content',
   ('{'+
+    '"brandName":"Osmanlı Adıyaman Çiğköfte",'+
     '"heroTitle":"Lezzetin Usta Adresi — Acılı Çiğköfte",'+
     '"heroSubtitle":"1998\'den bu yana aynı geleneksel tarifle üretiyoruz. 8 vitrin ürünümüz, 4 aktif bayimizle hizmetinizdeyiz.",'+
     '"logoUrl":"./images/logo.svg",'+
@@ -104,6 +105,6 @@ INSERT INTO ckft_store (store_key, payload) VALUES
 ),
 (
   'ckft_corporate_build_version',
-  ('"20260820-v5"')::JSONB
+  ('"20260821-v6"')::JSONB
 )
 ON CONFLICT (store_key) DO NOTHING;

@@ -1,4 +1,4 @@
-const BUILD_VERSION = "20260820-v5";
+const BUILD_VERSION = "20260821-v6";
 const STORAGE_KEYS = {
   products: "ckft_corporate_products",
   dealers: "ckft_corporate_dealers",
@@ -592,12 +592,12 @@ export const defaultFranchisePackages = [
 ];
 
 export const defaultPageTitles = {
-  "index.html": { title: "Ana Sayfa | Acılı Çiğköfte", headerTitle: "", headerSubtitle: "" },
-  "urunlerimiz.html": { title: "Ürünlerimiz | Acılı Çiğköfte", headerTitle: "", headerSubtitle: "" },
-  "hakkimizda.html": { title: "Hakkımızda | Acılı Çiğköfte", headerTitle: "", headerSubtitle: "" },
-  "bayilerimiz.html": { title: "Bayilerimiz | Acılı Çiğköfte", headerTitle: "", headerSubtitle: "" },
-  "bayilik-basvurusu.html": { title: "Bayimiz Olun | Acılı Çiğköfte", headerTitle: "", headerSubtitle: "" },
-  "iletisim.html": { title: "İletişim | Acılı Çiğköfte", headerTitle: "", headerSubtitle: "" },
+  "index.html": { title: "Ana Sayfa | Osmanlı Adıyaman Çiğköfte", headerTitle: "", headerSubtitle: "" },
+  "urunlerimiz.html": { title: "Ürünlerimiz | Osmanlı Adıyaman Çiğköfte", headerTitle: "", headerSubtitle: "" },
+  "hakkimizda.html": { title: "Hakkımızda | Osmanlı Adıyaman Çiğköfte", headerTitle: "", headerSubtitle: "" },
+  "bayilerimiz.html": { title: "Bayilerimiz | Osmanlı Adıyaman Çiğköfte", headerTitle: "", headerSubtitle: "" },
+  "bayilik-basvurusu.html": { title: "Bayimiz Olun | Osmanlı Adıyaman Çiğköfte", headerTitle: "", headerSubtitle: "" },
+  "iletisim.html": { title: "İletişim | Osmanlı Adıyaman Çiğköfte", headerTitle: "", headerSubtitle: "" },
 };
 
 export const applicationStatuses = ["Yeni", "İncelendi", "İletişime Geçildi"];
@@ -659,7 +659,7 @@ const defaultStoreImages = [
 ];
 
 export const defaultSiteContent = {
-  brandName: "Acılı Çiğköfte",
+  brandName: "Osmanlı Adıyaman Çiğköfte",
   logoUrl: "./images/logo.png",
   slogan: "Gelenekten gelen gerçek çiğköfte lezzeti",
   heroDescription:
@@ -1161,7 +1161,12 @@ export function createApplication(payload) {
 }
 
 export function getSiteContent() {
-  const stored = storageReadObject(STORAGE_KEYS.siteContent, defaultSiteContent);
+  let stored = storageReadObject(STORAGE_KEYS.siteContent, defaultSiteContent);
+  // Önceki marka adları tarayıcı hafızasında kalmışsa yeni resmi ada bir kez taşı.
+  if (stored && ["Acılı Çiğköfte", "Adıyaman Osmanlı Çiğköfte"].includes(String(stored.brandName || "").trim())) {
+    stored = { ...stored, brandName: defaultSiteContent.brandName };
+    try { storageWriteJson(STORAGE_KEYS.siteContent, stored); } catch (_) {}
+  }
   function looksBrokenCounter(val) {
     if (typeof val !== "string") return true;
     const trimmed = val.trim();

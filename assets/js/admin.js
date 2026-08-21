@@ -29,9 +29,9 @@ import {
   statusClassName,
   updateAdminPassword,
   updateFranchisePackage,
-} from "./shared/data.js?v=20260820-v5";
-import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260820-v5";
-const EXPECTED_BUILD_ADMIN = "20260820-v5";
+} from "./shared/data.js?v=20260821-v6";
+import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260821-v6";
+const EXPECTED_BUILD_ADMIN = "20260821-v6";
 if (typeof CURRENT_DATA_VERSION === "string" && CURRENT_DATA_VERSION !== EXPECTED_BUILD_ADMIN) {
   try { window.location.reload(true); } catch (_) { location.href = location.href; }
 }

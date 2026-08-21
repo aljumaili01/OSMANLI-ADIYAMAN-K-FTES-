@@ -1,6 +1,9 @@
 {
   "cleanUrls": false,
   "trailingSlash": false,
+  "functions": {
+    "api/db/[table].js": { "maxDuration": 10 }
+  },
   "rewrites": [
     { "source": "/(.*)", "destination": "/$1" }
   ],

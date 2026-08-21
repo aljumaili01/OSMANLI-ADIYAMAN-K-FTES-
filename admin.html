@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <title>Acılı Çiğköfte | Yönetim Paneli</title>
+    <title>Osmanlı Adıyaman Çiğköfte | Yönetim Paneli</title>
     <script>
       (function () {
         var AUTH_KEY = "isAdminLoggedIn";
@@ -53,6 +53,7 @@
                 try {
                   localStorage.setItem("isAdminLoggedIn", "true");
                   localStorage.setItem("ckft_admin_login_time", String(Date.now()));
+                  localStorage.setItem("ckft_py_db_api_secret_cache_v1", password);
                 } catch (err) {
                   alert("Tarayıcı gizlilik modu açık. Lütfen normal pencerede deneyin.");
                   return;
@@ -108,7 +109,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/assets/css/styles.css?v=20260820-v5" />
+    <link rel="stylesheet" href="/assets/css/styles.css?v=20260821-v6" />
   </head>
   <body class="min-h-screen bg-[#FDFBF7] font-[Inter] text-stone-800">
     <main id="dashboard-view" class="min-h-screen bg-[#F7F4EF]">
@@ -866,7 +867,7 @@
       </div>
     </main>
 
-    <script src="/assets/js/shared/pySyncClient.js?v=20260820-v5"></script>
-    <script type="module" src="/assets/js/admin.js?v=20260820-v5"></script>
+    <script src="/assets/js/shared/pySyncClient.js?v=20260821-v6"></script>
+    <script type="module" src="/assets/js/admin.js?v=20260821-v6"></script>
   </body>
 </html>

@@ -12,9 +12,9 @@ import {
   getSiteContent,
   initializeData,
   initializeDataServerFirstIfPossible,
-} from "./shared/data.js?v=20260820-v5";
-import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260820-v5";
-const EXPECTED_BUILD = "20260820-v5";
+} from "./shared/data.js?v=20260821-v6";
+import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260821-v6";
+const EXPECTED_BUILD = "20260821-v6";
 if (typeof CURRENT_DATA_VERSION === "string" && CURRENT_DATA_VERSION !== EXPECTED_BUILD) {
   try { window.location.reload(true); } catch (_) { try { location.href = location.href; } catch (__) {} }
 }

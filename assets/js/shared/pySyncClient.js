@@ -11,7 +11,7 @@
 (function (global) {
   'use strict';
 
-  const BUILD_VERSION_EXPECTED = '20260820-v5';
+  const BUILD_VERSION_EXPECTED = '20260821-v6';
 
   // Admin login başarılı olduğunda bu anahtar ayarlanır (X-DB-API-Key header ile gönderilir)
   const SECRET_LOCAL_STORAGE_KEY = 'ckft_py_db_api_secret_cache_v1';

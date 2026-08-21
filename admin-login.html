@@ -7,7 +7,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <title>Acılı Çiğköfte | Yönetim Girişi</title>
+    <title>Osmanlı Adıyaman Çiğköfte | Yönetim Girişi</title>
     <script>
       if (typeof localStorage !== "undefined" && localStorage.getItem("isAdminLoggedIn") === "true") {
         try { window.location.replace("admin.html"); } catch (_) { window.location.href = "admin.html"; }
@@ -35,7 +35,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/assets/css/styles.css?v=20260820-v5" />
+    <link rel="stylesheet" href="/assets/css/styles.css?v=20260821-v6" />
   </head>
   <body class="min-h-screen bg-[#FDFBF7] font-[Inter] text-stone-800">
     <main id="login-view" class="mx-auto flex min-h-screen max-w-7xl items-center px-4 py-10 sm:px-6 lg:px-8">
@@ -109,7 +109,7 @@
       </div>
     </main>
 
-    <script src="/assets/js/shared/pySyncClient.js?v=20260820-v5"></script>
+    <script src="/assets/js/shared/pySyncClient.js?v=20260821-v6"></script>
     <script>
       (function () {
         function finalLoginSubmit(event) {
@@ -144,7 +144,7 @@
                 window.PySyncClient.bootstrapSecretFromWindow();
               }
               if (window.PySyncClient && typeof window.PySyncClient.onAdminAuthenticated === "function") {
-                window.PySyncClient.onAdminAuthenticated(window.DB_API_SECRET || window.__CKFT_DB_SECRET__ || "");
+                window.PySyncClient.onAdminAuthenticated(password);
               }
             } catch (_syncErr) { /* ignore */ }
             if (fEl) {

@@ -36,7 +36,42 @@
     <link rel="stylesheet" href="/assets/css/styles.css?v=20260820-v5" />
   </head>
   <body class="text-stone-800">
-    <div id="site-header"></div>
+    <div id="site-header">
+      <header class="brand-hero text-white">
+        <div class="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
+          <nav class="glass-card flex items-center justify-between rounded-full border border-white/10 px-4 py-3 sm:px-6 sm:py-4">
+            <a href="/index.html" class="flex items-center justify-center gap-3 self-center">
+              <span class="relative inline-flex h-14 min-h-[3.5rem] w-14 min-w-[3.5rem] shrink-0 items-center justify-center overflow-hidden rounded-full border border-red-100 bg-white shadow-sm">
+                <img src="/images/logo.png" alt="Adıyaman Osmanlı Çiğköfte logosu" class="block h-full w-full rounded-full object-cover" loading="eager" decoding="async" referrerpolicy="no-referrer" />
+              </span>
+              <div class="flex flex-col justify-center">
+                <p class="text-lg font-extrabold tracking-[0.12em] text-[#6B1818]">Adıyaman Osmanlı Çiğköfte</p>
+                <p class="text-xs uppercase tracking-[0.2em] text-stone-500">Kurumsal Lezzet Markası</p>
+              </div>
+            </a>
+            <button id="mobile-menu-button" type="button" class="self-center rounded-full border border-stone-200 px-4 py-2 text-sm font-semibold text-[#6B1818] md:hidden">Menü</button>
+            <div class="hidden self-center items-center gap-6 text-sm font-medium md:flex">
+              <a href="/index.html" class="inline-flex items-center self-center text-[#6B1818]">Ana Sayfa</a>
+              <a href="/urunlerimiz.html" class="inline-flex items-center self-center text-[#6B1818]">Ürünlerimiz</a>
+              <a href="/hakkimizda.html" class="inline-flex items-center self-center text-[#6B1818]">Hakkımızda</a>
+              <a href="/bayilerimiz.html" class="inline-flex items-center self-center text-[#6B1818]">Bayilerimiz</a>
+              <a href="/bayilik-basvurusu.html" class="inline-flex items-center self-center text-[#6B1818]">Bayimiz Olun</a>
+              <a href="/iletisim.html" class="inline-flex items-center self-center text-[#6B1818]">İletişim</a>
+            </div>
+          </nav>
+          <div id="mobile-menu" class="hidden mt-4 rounded-3xl border border-white/10 bg-[#FDFBF7] p-4 text-sm md:hidden">
+            <div class="flex flex-col gap-3">
+              <a href="/index.html" class="block rounded-2xl px-3 py-2 text-[#6B1818] hover:bg-[#F7F4EF]">Ana Sayfa</a>
+              <a href="/urunlerimiz.html" class="block rounded-2xl px-3 py-2 text-[#6B1818] hover:bg-[#F7F4EF]">Ürünlerimiz</a>
+              <a href="/hakkimizda.html" class="block rounded-2xl px-3 py-2 text-[#6B1818] hover:bg-[#F7F4EF]">Hakkımızda</a>
+              <a href="/bayilerimiz.html" class="block rounded-2xl px-3 py-2 text-[#6B1818] hover:bg-[#F7F4EF]">Bayilerimiz</a>
+              <a href="/bayilik-basvurusu.html" class="block rounded-2xl px-3 py-2 text-[#6B1818] hover:bg-[#F7F4EF]">Bayimiz Olun</a>
+              <a href="/iletisim.html" class="block rounded-2xl px-3 py-2 text-[#6B1818] hover:bg-[#F7F4EF]">İletişim</a>
+            </div>
+          </div>
+        </div>
+      </header>
+    </div>
 
     <main>
       <section class="brand-hero -mt-24 pt-24 text-white">
@@ -48,10 +83,10 @@
             <h1 id="hero-title" class="text-4xl font-extrabold leading-tight sm:text-5xl md:text-6xl"></h1>
             <p id="hero-description" class="max-w-xl text-base leading-8 text-white/80 sm:text-lg"></p>
             <div class="flex flex-col gap-3 sm:flex-row">
-              <a href="./urunlerimiz.html" class="rounded-2xl bg-amber-500 px-6 py-4 text-center text-sm font-bold text-white shadow-glow transition hover:bg-amber-600">
+              <a href="/urunlerimiz.html" class="rounded-2xl bg-amber-500 px-6 py-4 text-center text-sm font-bold text-white shadow-glow transition hover:bg-amber-600">
                       Ürünlerimiz
               </a>
-              <a href="./bayilik-basvurusu.html" class="rounded-2xl border border-white/30 px-6 py-4 text-center text-sm font-bold text-white transition hover:bg-white/10">
+              <a href="/bayilik-basvurusu.html" class="rounded-2xl border border-white/30 px-6 py-4 text-center text-sm font-bold text-white transition hover:bg-white/10">
                       Bayimiz Olun
               </a>
             </div>
@@ -62,15 +97,15 @@
               <div class="grid gap-4 sm:grid-cols-3 md:grid-cols-1 lg:grid-cols-3">
                 <div class="rounded-3xl border border-stone-200 bg-white p-4">
                   <p id="brand-highlight-products-label" class="text-sm font-semibold text-amber-700">Ürün Portföyü</p>
-                  <p id="brand-highlight-products" class="mt-2 text-2xl font-extrabold text-stone-900">0</p>
+                  <p id="brand-highlight-products" class="mt-2 text-2xl font-extrabold text-stone-900">8 vitrin ürünü</p>
                 </div>
                 <div class="rounded-3xl border border-stone-200 bg-white p-4">
                   <p id="brand-highlight-dealers-label" class="text-sm font-semibold text-amber-700">Bayi Ağı</p>
-                  <p id="brand-highlight-dealers" class="mt-2 text-2xl font-extrabold text-stone-900">0</p>
+                  <p id="brand-highlight-dealers" class="mt-2 text-2xl font-extrabold text-stone-900">4 aktif bayi noktası</p>
                 </div>
                 <div class="rounded-3xl border border-stone-200 bg-white p-4">
                   <p id="brand-highlight-applications-label" class="text-sm font-semibold text-amber-700">Başvuru Akışı</p>
-                  <p id="brand-highlight-applications" class="mt-2 text-2xl font-extrabold text-stone-900">0</p>
+                  <p id="brand-highlight-applications" class="mt-2 text-2xl font-extrabold text-stone-900">2 güncel başvuru</p>
                 </div>
               </div>
               <div class="mt-4 rounded-3xl border border-stone-200 bg-white p-5">
@@ -88,7 +123,7 @@
                   <p class="text-sm font-bold uppercase tracking-[0.24em] text-amber-600">Öne Çıkan Lezzetler</p>
                   <h2 class="mt-3 text-3xl font-extrabold text-stone-900 sm:text-4xl">Markamızın dikkat çeken ürün seçkisi</h2>
           </div>
-                <a href="./urunlerimiz.html" class="text-sm font-semibold text-red-800">Tüm ürünleri incele</a>
+                <a href="/urunlerimiz.html" class="text-sm font-semibold text-red-800">Tüm ürünleri incele</a>
         </div>
         <div id="popular-products" class="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3"></div>
       </section>
@@ -109,7 +144,7 @@
             <p class="text-sm font-bold uppercase tracking-[0.24em] text-amber-600">Şubelerimiz</p>
             <h2 class="mt-3 text-3xl font-extrabold text-stone-900 sm:text-4xl">Bayi noktalarımız ve konum bilgileri</h2>
           </div>
-          <a href="./bayilerimiz.html" class="text-sm font-semibold text-red-800">Tüm şubeleri görüntüle</a>
+          <a href="/bayilerimiz.html" class="text-sm font-semibold text-red-800">Tüm şubeleri görüntüle</a>
         </div>
         <div id="homepage-dealers" class="mt-8 grid gap-6 lg:grid-cols-2"></div>
       </section>
@@ -197,7 +232,7 @@
                 <h2 id="franchise-title" class="mt-3 text-3xl font-extrabold sm:text-4xl"></h2>
                 <p id="franchise-slogan" class="mt-4 text-xl font-bold text-amber-200"></p>
                 <p id="franchise-text" class="mt-5 max-w-4xl text-base leading-8 text-white/80"></p>
-                <a href="./bayilik-basvurusu.html" class="mt-8 inline-flex rounded-2xl bg-white px-6 py-4 text-sm font-bold text-[#6B1818] transition hover:bg-[#F7F4EF]">
+                <a href="/bayilik-basvurusu.html" class="mt-8 inline-flex rounded-2xl bg-white px-6 py-4 text-sm font-bold text-[#6B1818] transition hover:bg-[#F7F4EF]">
                   Bayimiz Olun
                 </a>
               </div>

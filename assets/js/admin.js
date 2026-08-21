@@ -58,12 +58,21 @@ if (typeof CURRENT_DATA_VERSION === "string" && CURRENT_DATA_VERSION !== EXPECTE
           window.__CKFT_ADMIN_INIT_RESULT__ = initResult;
         }
       } catch (_l) { /* ignore */ }
+      try { initializeData(); } catch (_initErr) { /* her durumda veri katmanını tohumlama garantisi */ }
       if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
         try {
           const storageBuild = localStorage.getItem("ckft_corporate_build_version");
           if (storageBuild !== EXPECTED_BUILD_ADMIN) {
-            try { window.location.reload(true); } catch (_) { location.href = location.href; }
-            return;
+            try { initializeData(); } catch (_) {}
+            try {
+              const retryBuild = localStorage.getItem("ckft_corporate_build_version");
+              if (retryBuild !== EXPECTED_BUILD_ADMIN) {
+                try { window.location.reload(true); } catch (_reloadErr) {
+                  try { location.href = location.href; } catch (__) {}
+                }
+                return;
+              }
+            } catch (_retryErr) {}
           }
         } catch (_chk) { /* ignore */ }
       }
@@ -130,17 +139,27 @@ window.addEventListener("load", function () {
 
 function initializeAdminDashboard() {
   if (state && elements && elements.adminTabButtons && elements.adminTabButtons.length) {
+    try { syncStateValues(); } catch (_resync) {}
+    try { renderDashboard(); } catch (_rerender) {}
     return;
   }
 
+  try { initializeData(); } catch (_initErr) { /* dashboard girişinden hemen önce veri katmanını tohumla */ }
   try {
+    const freshProducts = Array.isArray(getProducts()) ? getProducts() : [];
+    const freshDealers = Array.isArray(getDealers()) ? getDealers() : [];
+    const freshApplications = Array.isArray(getApplications()) ? getApplications() : [];
+    const freshSiteContent = getSiteContent();
+    const freshPackages = Array.isArray(getFranchisePackages()) ? getFranchisePackages() : [];
+    const freshPageTitles = getPageTitles();
+
     state = {
-      products: getProducts(),
-      dealers: getDealers(),
-      applications: getApplications(),
-      siteContent: getSiteContent(),
-      franchisePackages: getFranchisePackages(),
-      pageTitles: getPageTitles(),
+      products: freshProducts,
+      dealers: freshDealers,
+      applications: freshApplications,
+      siteContent: freshSiteContent,
+      franchisePackages: freshPackages,
+      pageTitles: freshPageTitles,
       editingDealerId: null,
       editingPackageId: null,
       activeTab: sessionStorage.getItem(ADMIN_TAB_KEY) ?? "genel-bakis",
@@ -248,13 +267,20 @@ function syncState() {
 }
 
 function syncStateValues() {
-  if (!state) return;
-  state.products = getProducts();
-  state.dealers = getDealers();
-  state.applications = getApplications();
+  if (!state) {
+    state = {};
+  }
+  try { initializeData(); } catch (_) {}
+  state.products = Array.isArray(getProducts()) ? getProducts() : state.products;
+  state.dealers = Array.isArray(getDealers()) ? getDealers() : state.dealers;
+  state.applications = Array.isArray(getApplications()) ? getApplications() : state.applications;
   state.siteContent = getSiteContent();
-  state.franchisePackages = getFranchisePackages();
+  state.franchisePackages = Array.isArray(getFranchisePackages()) ? getFranchisePackages() : state.franchisePackages;
   state.pageTitles = getPageTitles();
+  if (!Array.isArray(state.products)) state.products = [];
+  if (!Array.isArray(state.dealers)) state.dealers = [];
+  if (!Array.isArray(state.applications)) state.applications = [];
+  if (!Array.isArray(state.franchisePackages)) state.franchisePackages = [];
 }
 
 function renderDashboard() {
@@ -298,9 +324,40 @@ function renderOverview() {
 function renderProducts() {
   if (!elements.productList) return;
 
+  if (!Array.isArray(state.products)) {
+    try { state.products = Array.isArray(getProducts()) ? getProducts() : []; } catch (_) { state.products = []; }
+  }
+  if (!state.products.length) {
+    try {
+      const retry = Array.isArray(getProducts()) ? getProducts() : [];
+      if (retry.length) state.products = retry.slice();
+    } catch (_) {}
+  }
+
   const isVideoUrl = function (url) {
     return /\.(mp4|webm|ogg|mov)$/i.test(url) || url.indexOf("data:video") === 0;
   };
+
+  if (!state.products.length) {
+    elements.productList.innerHTML =
+      "<div class=\"rounded-[28px] border border-dashed border-stone-300 bg-[#F7F4EF] p-8\">" +
+        "<div class=\"grid gap-4 sm:grid-cols-[auto_1fr] items-start\">" +
+          "<span class=\"inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-700\">" +
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-6 w-6\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 7 4 7\"/><path d=\"M20 12 4 12\"/><path d=\"M20 17 4 17\"/></svg>" +
+          "</span>" +
+          "<div>" +
+            "<h3 class=\"text-base font-bold text-stone-900\">Henüz ürün kaydı bulunmuyor</h3>" +
+            "<p class=\"mt-2 text-sm leading-7 text-stone-600\">" +
+              "Soldaki \"Yeni Ürün Ekle\" formunu kullanarak ilk vitrin ürünü ekleyebilirsiniz. Eklediğiniz ürünler ana sayfada ve Ürünlerimiz sayfasında görünecektir." +
+            "</p>" +
+            "<p class=\"mt-3 rounded-2xl bg-white px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-amber-700\">" +
+              "Örnek: Acılı Çiğköfte, Nohutlu Çiğköfte, Patatesli Çiğköfte, Vegan Çiğköfte" +
+            "</p>" +
+          "</div>" +
+        "</div>" +
+      "</div>";
+    return;
+  }
 
   elements.productList.innerHTML = state.products
     .map(function (product) {
@@ -309,6 +366,7 @@ function renderProducts() {
         ? "<video src=\"" + escapeAttribute(product.image) + "\" title=\"" + escapeAttribute(product.name) + "\" class=\"h-full w-full object-cover\" controls muted loop playsinline preload=\"metadata\"></video>"
         : "<img src=\"" + escapeAttribute(product.image) + "\" alt=\"" + escapeAttribute(product.name) + "\" class=\"h-full w-full object-cover\" loading=\"lazy\" decoding=\"async\" />";
       const checkedAttr = product.active ? "checked" : "";
+      const badgesStr = Array.isArray(product.badges) ? product.badges.join(", ") : (String(product.badges ?? ""));
       return "" +
         "<article class=\"rounded-[28px] border border-stone-200 bg-[#FDFBF7] p-5\">" +
           "<form data-inline-product-form=\"" + escapeAttribute(product.id) + "\" class=\"space-y-4\">" +
@@ -342,11 +400,11 @@ function renderProducts() {
                 "</div>" +
                 "<div class=\"md:col-span-2\">" +
                   "<label class=\"mb-2 block text-sm font-semibold text-stone-700\">Açıklama</label>" +
-                  "<textarea name=\"description\" rows=\"4\" class=\"w-full rounded-2xl border border-stone-200 bg-white px-4 py-3\">" + escapeHtml(product.description) + "</textarea>" +
+                  "<textarea name=\"description\" rows=\"4\" class=\"w-full rounded-2xl border border-stone-200 bg-white px-4 py-3\">" + escapeHtml(product.description ?? "") + "</textarea>" +
                 "</div>" +
                 "<div>" +
                   "<label class=\"mb-2 block text-sm font-semibold text-stone-700\">Rozetler</label>" +
-                  "<input name=\"badges\" value=\"" + escapeAttribute(product.badges.join(", ")) + "\" class=\"w-full rounded-2xl border border-stone-200 bg-white px-4 py-3\" />" +
+                  "<input name=\"badges\" value=\"" + escapeAttribute(badgesStr) + "\" class=\"w-full rounded-2xl border border-stone-200 bg-white px-4 py-3\" />" +
                 "</div>" +
                 "<label class=\"flex items-center gap-3 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm font-medium text-stone-700\">" +
                   "<input type=\"checkbox\" name=\"active\" class=\"h-4 w-4\" " + checkedAttr + " />" +
@@ -394,7 +452,12 @@ function handleProductSave(event) {
     return;
   }
 
-  state.products = [{ ...payload }, ...state.products];
+  try {
+    const latest = Array.isArray(getProducts()) ? getProducts() : [];
+    state.products = Array.isArray(latest) && latest.length ? latest : (Array.isArray(state.products) ? state.products : []);
+  } catch (_rehydrate) {}
+
+  state.products = [{ ...payload }, ...(Array.isArray(state.products) ? state.products : [])];
   saveProducts(state.products);
   elements.productForm.reset();
   resetMediaGroups(elements.productForm);
@@ -409,16 +472,43 @@ function handleInlineProductSave(event) {
 
   const productId = form.dataset.inlineProductForm ?? "";
   const formData = new FormData(form);
+
+  try {
+    const latest = Array.isArray(getProducts()) ? getProducts() : [];
+    if (Array.isArray(latest) && latest.length) {
+      state.products = latest.slice();
+    }
+  } catch (_rehydrate) {}
+
   const payload = buildProductPayload(formData, productId);
 
   if (!isValidProduct(payload)) {
     return;
   }
 
-  state.products = state.products.map((product) =>
-    product.id === productId ? payload : product
+  state.products = (Array.isArray(state.products) ? state.products : []).map((product) =>
+    product && product.id === productId ? payload : product
   );
   saveProducts(state.products);
+  renderDashboard();
+}
+
+function deleteProduct(productId) {
+  if (!productId) return;
+  try {
+    const latest = Array.isArray(getProducts()) ? getProducts() : [];
+    if (Array.isArray(latest) && latest.length) {
+      state.products = latest.slice();
+    }
+  } catch (_rehydrate) {}
+  const product = (Array.isArray(state.products) ? state.products : []).find(function (p) { return p && p.id === productId; });
+  const label = product && product.name ? product.name : "seçili ürün";
+  const confirmed = window.confirm("⚠️ " + label + " kalıcı olarak silinsin mi?\nBu işlem GERİ ALINAMAZ. Silinen ürün sayfa yenilemelerinde geri gelmeyecektir.");
+  if (!confirmed) return;
+
+  state.products = (Array.isArray(state.products) ? state.products : []).filter((product) => product && product.id !== productId);
+  saveProducts(state.products);
+  try { persistDeleteProduct(productId); } catch (_) {}
   renderDashboard();
 }
 
@@ -456,19 +546,6 @@ function isValidProduct(product) {
       product.description &&
       product.image
   );
-}
-
-function deleteProduct(productId) {
-  if (!productId) return;
-  const product = state.products.find(function (p) { return p && p.id === productId; });
-  const label = product && product.name ? product.name : "seçili ürün";
-  const confirmed = window.confirm("⚠️ " + label + " kalıcı olarak silinsin mi?\nBu işlem GERİ ALINAMAZ. Silinen ürün sayfa yenilemelerinde geri gelmeyecektir.");
-  if (!confirmed) return;
-
-  state.products = state.products.filter((product) => product.id !== productId);
-  saveProducts(state.products);
-  persistDeleteProduct(productId);
-  renderDashboard();
 }
 
 function renderFranchisePackages() {

@@ -56,12 +56,21 @@ if (typeof window !== "undefined") {
             window.__CKFT_INIT_RESULT__ = initResult;
           }
         } catch (_logErr) { /* ignore */ }
+        try { initializeData(); } catch (_initErr) { /* her durumda veri katmanını tohumlama garantisi */ }
         if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
           try {
             const storageBuild = localStorage.getItem("ckft_corporate_build_version");
             if (storageBuild !== EXPECTED_BUILD) {
-              try { window.location.reload(true); } catch (_) { try { location.href = location.href; } catch (__) {} }
-              return;
+              try { initializeData(); } catch (_) {}
+              try {
+                const retryBuild = localStorage.getItem("ckft_corporate_build_version");
+                if (retryBuild !== EXPECTED_BUILD) {
+                  try { window.location.reload(true); } catch (_reloadErr) {
+                    try { location.href = location.href; } catch (__) {}
+                  }
+                  return;
+                }
+              } catch (_retryErr) {}
             }
           } catch (_chkErr) { /* ignore */ }
         }
@@ -139,6 +148,9 @@ function __safeMainRender(sourceTag) {
 
 function mainSiteRender() {
   currentPath = __extractCurrentPath();
+  if (typeof window !== "undefined") {
+    window.__CKFT_CURRENT_PATH__ = currentPath;
+  }
   try { renderLayout(); } catch (_) {}
   try { renderHome(); } catch (_) {}
   try { renderProductsPage(); } catch (_) {}
@@ -151,7 +163,15 @@ function mainSiteRender() {
   try { renderWhatsAppButton(); } catch (_) {}
   try {
     if (typeof window !== "undefined" && typeof window.addEventListener === "function") {
-      window.addEventListener("storage", rerenderAllDynamicSections);
+      if (!window.__CKFT_STORAGE_LISTENER_ATTACHED__) {
+        window.addEventListener("storage", function () {
+          try { currentPath = __extractCurrentPath(); } catch (_) {}
+          try { rerenderAllDynamicSections(); } catch (_rerenderErr) {
+            try { console.warn("[site] storage-event yeniden render başarısız:", (_rerenderErr && _rerenderErr.message) || _rerenderErr); } catch (__) {}
+          }
+        });
+        window.__CKFT_STORAGE_LISTENER_ATTACHED__ = true;
+      }
     }
   } catch (_) {}
 }

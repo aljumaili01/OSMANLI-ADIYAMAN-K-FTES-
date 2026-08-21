@@ -242,9 +242,10 @@ function handleLogout() {
   localStorage.removeItem(AUTH_FLAG_KEY);
   sessionStorage.removeItem(ADMIN_TAB_KEY);
   try { localStorage.removeItem("ckft_admin_login_time"); } catch (_) {}
+  try { localStorage.removeItem("ckft_py_db_api_secret_cache_v1"); } catch (_) {}
 
   try {
-    window.location.replace("./admin-login.html");
+    window.location.replace("/admin-login.html?logout=1");
   } catch (e) {
     try {
       window.location.href = "./admin-login.html";

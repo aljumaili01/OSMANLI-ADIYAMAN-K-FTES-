@@ -129,7 +129,13 @@ function attachAdminTabDelegation() {
 }
 attachAdminTabDelegation();
 
-document.addEventListener("DOMContentLoaded", initializeAdminDashboard);
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initializeAdminDashboard, { once: true });
+} else {
+  // Sunucu-önce eşitleme DOMContentLoaded sonrasında tamamlanabilir. Bu durumda
+  // olayı tekrar beklemek paneli boş bırakır; paneli hemen başlat.
+  queueMicrotask(initializeAdminDashboard);
+}
 window.addEventListener("load", function () {
   if (!state || !elements || !elements.dashboardView) {
     setTimeout(initializeAdminDashboard, 0);

@@ -753,13 +753,16 @@ function buildPackagePayload(formData, packageId = null, sourceForm = null) {
 
   const selectedMediaType = formData.get("mediaType")?.toString().trim() || "image";
   const rawMedia = formData.get("media")?.toString().trim() ?? "";
-  const resolvedMedia = rawMedia || currentPackage?.media || "";
+  const galleryStateKnown = sourceForm instanceof HTMLFormElement && __PKG_GALLERY_WEAK.has(sourceForm);
+  // Formun galeri durumu biliniyorsa media alanı gerçeğin kaynağıdır: silme
+  // işleminde boş, yeni kapak yüklemesinde yeni dosya değeridir. Eski pakete
+  // fallback yapmak silinen kapağı geri getirir.
+  const resolvedMedia = galleryStateKnown ? rawMedia : (rawMedia || currentPackage?.media || "");
 
   const detectedMediaType = /\.(mp4|webm|ogg|mov)$/i.test(resolvedMedia) || resolvedMedia.startsWith("data:video")
     ? "video"
     : selectedMediaType;
 
-  const galleryStateKnown = sourceForm instanceof HTMLFormElement && __PKG_GALLERY_WEAK.has(sourceForm);
   let gallery = sourceForm instanceof HTMLFormElement
     ? getFormGalleryState(sourceForm)
     : Array.isArray(currentPackage && currentPackage.gallery) ? normalizeGallery(currentPackage.gallery) : [];
@@ -779,9 +782,7 @@ function buildPackagePayload(formData, packageId = null, sourceForm = null) {
     }]);
   }
 
-  let finalMedia = galleryStateKnown
-    ? normalizeImagePath(gallery.length ? String(gallery[0].url || "") : "")
-    : normalizeImagePath(resolvedMedia);
+  let finalMedia = normalizeImagePath(resolvedMedia);
   if (!finalMedia && gallery.length) {
     finalMedia = String(gallery[0].url || "");
   }

@@ -12,8 +12,8 @@ import {
   getSiteContent,
   initializeData,
   initializeDataServerFirstIfPossible,
-} from "./shared/data.js?v=20260821-v17";
-import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260821-v17";
+} from "./shared/data.js?v=20260821-v18";
+import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260821-v18";
 const EXPECTED_BUILD = "20260821-v6";
 if (typeof CURRENT_DATA_VERSION === "string" && CURRENT_DATA_VERSION !== EXPECTED_BUILD) {
   try { window.location.reload(true); } catch (_) { try { location.href = location.href; } catch (__) {} }
@@ -509,12 +509,12 @@ function renderDealersPage() {
     dealerList.innerHTML = dealers
       .map(
         (dealer) => `
-          <article class="site-card overflow-hidden rounded-[28px] border border-stone-200 bg-white">
-            <div class="flex h-full flex-col md:flex-row">
-              <div class="aspect-[4/3] w-full shrink-0 overflow-hidden border-b border-stone-200 bg-[#F7F4EF] md:aspect-auto md:h-full md:w-[280px] md:border-b-0 md:border-r">
+          <article class="site-card flex flex-col overflow-hidden rounded-[28px] border border-stone-200 bg-white">
+            <div class="grid md:grid-cols-2">
+              <div class="h-64 w-full overflow-hidden border-b border-stone-200 bg-[#F7F4EF] md:h-80 md:border-b-0 md:border-r">
                 ${dealerImageMarkup(dealer)}
               </div>
-              <div class="flex flex-1 flex-col justify-between p-6">
+              <div class="flex min-h-80 flex-col justify-between p-6">
                 <div class="space-y-4">
                   <div>
                     <p class="text-xs font-bold uppercase tracking-[0.22em] text-amber-700">${escapeAttr(dealer.city)} / ${escapeAttr(dealer.district)}</p>
@@ -544,7 +544,7 @@ function renderDealersPage() {
               <iframe
                 src="${escapeAttr(resolveMapEmbedSrc(dealer.mapEmbedUrl))}"
                 title="${escapeAttr(dealer.branchName)} haritası"
-                class="h-64 w-full rounded-[22px] border border-stone-200 bg-white"
+                class="h-72 w-full rounded-[22px] border border-stone-200 bg-white"
                 loading="lazy"
                 allowfullscreen
                 referrerpolicy="no-referrer-when-downgrade"

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Acılı Çiğköfte | Bayimiz Olun</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./assets/css/styles.css" />
+  </head>
+  <body class="text-stone-800">
+    <div id="site-header"></div>
+    <main>
+      <section class="bg-[#FCF7F0] py-16 text-stone-900">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <p id="page-eyebrow" class="text-sm font-bold uppercase tracking-[0.24em] text-amber-700">Bayilik Paketlerimiz</p>
+          <h1 id="page-main-title" class="mt-3 text-4xl font-extrabold sm:text-5xl text-stone-900">Bayilik paketlerimizi inceleyin, size uygun olanı seçin</h1>
+          <p id="page-main-subtitle" class="mt-4 max-w-3xl text-base leading-8 text-stone-600">
+            Farklı yatırım bütçeleri ve iş ölçekleri için tasarlanmış esnek bayilik paketlerimizle markamızın parçası olun.
+          </p>
+        </div>
+      </section>
+
+      <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div class="flex flex-col items-center text-center">
+          <p class="text-sm font-bold uppercase tracking-[0.24em] text-amber-700">Bayilik Paketlerimiz</p>
+          <h2 class="mt-3 text-3xl font-extrabold text-stone-900 sm:text-4xl">Size en uygun paketi seçin</h2>
+          <p class="mt-4 max-w-2xl text-base leading-8 text-stone-600">
+            Her biri farklı ölçek ve yatırım seviyesine göre tasarlanmış paketlerimizle, bütçenize ve hedeflerinize en uygun modeli belirleyin.
+          </p>
+        </div>
+        <div id="franchise-packages-container" class="mt-12 grid gap-6 lg:grid-cols-3"></div>
+      </section>
+
+      <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div class="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+          <article class="site-card rounded-[32px] bg-[#FDFBF7] p-8 text-[#000000]">
+            <p id="why-us-title" class="text-sm font-bold uppercase tracking-[0.24em] text-[#000000]">NEDEN BİZ?</p>
+            <div class="mt-5 space-y-4 text-sm leading-7 text-[#000000]">
+              <p id="why-us-text-1">Güçlü marka dili, standartlaşmış sunum ve sürekli kalite takibi ile fark yaratan bir operasyon modeli.</p>
+              <p id="why-us-text-2">Lokasyon seçimi, açılış süreci, kurumsal iletişim ve saha süreçlerinde yönlendirme odaklı destek yapısı.</p>
+              <p id="why-us-text-3">Uzun vadeli iş ortaklığı anlayışı ile büyümeyi hedefleyen profesyonel bayilik yaklaşımı.</p>
+            </div>
+          </article>
+
+          <form id="franchise-form" class="site-card rounded-[32px] bg-white p-8">
+            <div class="mb-6">
+              <p class="text-sm font-bold uppercase tracking-[0.24em] text-amber-700">Bayimiz Olun</p>
+              <h2 class="mt-2 text-2xl font-extrabold text-stone-900">Başvuru formunu doldurun</h2>
+              <p class="mt-2 text-sm leading-6 text-stone-500">Aşağıdaki formu doldurun, ekibimiz en kısa sürede sizinle iletişime geçsin.</p>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div class="sm:col-span-2">
+                <label class="mb-2 block text-sm font-semibold text-stone-700" for="fullName">Ad Soyad</label>
+                <input id="fullName" name="fullName" class="w-full rounded-2xl border border-stone-200 px-4 py-3" />
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-stone-700" for="phone">Telefon</label>
+                <input id="phone" name="phone" class="w-full rounded-2xl border border-stone-200 px-4 py-3" />
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-stone-700" for="email">E-posta</label>
+                <input id="email" name="email" type="email" class="w-full rounded-2xl border border-stone-200 px-4 py-3" />
+              </div>
+              <div class="sm:col-span-2">
+                <label class="mb-2 block text-sm font-semibold text-stone-700" for="packageSelect">İlgilendiğiniz Paket</label>
+                <select id="packageSelect" name="packageSelect" class="w-full rounded-2xl border border-stone-200 px-4 py-3">
+                  <option value="">Paket seçiniz</option>
+                </select>
+              </div>
+              <div class="sm:col-span-2">
+                <label class="mb-2 block text-sm font-semibold text-stone-700" for="cityDistrict">Şehir / İlçe</label>
+                <input id="cityDistrict" name="cityDistrict" class="w-full rounded-2xl border border-stone-200 px-4 py-3" />
+              </div>
+              <div class="sm:col-span-2">
+                <label class="mb-2 block text-sm font-semibold text-stone-700" for="message">Yatırım Planı / Mesajınız</label>
+                <textarea id="message" name="message" rows="6" class="w-full rounded-2xl border border-stone-200 px-4 py-3"></textarea>
+              </div>
+            </div>
+            <button type="submit" class="mt-6 w-full rounded-2xl bg-red-800 px-5 py-4 text-sm font-bold text-white">
+              Başvuru Gönder
+            </button>
+            <p id="franchise-feedback" class="mt-4 text-sm font-medium text-green-700"></p>
+          </form>
+        </div>
+      </section>
+    </main>
+    <div id="franchise-modal-root" aria-hidden="true"></div>
+    <div id="site-footer"></div>
+    <script src="./assets/js/shared/pySyncClient.js?v=20260820-v5"></script>
+    <script type="module" src="./assets/js/site.js?v=20260820-v5"></script>
+  </body>
+</html>

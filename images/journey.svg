@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-label="Lezzet yolculuğumuz görseli">
+  <rect width="1200" height="720" fill="#FDFBF7"/>
+  <rect x="70" y="70" width="1060" height="580" rx="42" fill="#F7F4EF"/>
+  <circle cx="250" cy="250" r="110" fill="#6B1818" opacity="0.12"/>
+  <circle cx="940" cy="510" r="130" fill="#D97706" opacity="0.12"/>
+  <rect x="130" y="170" width="330" height="300" rx="36" fill="#6B1818"/>
+  <rect x="510" y="170" width="560" height="380" rx="36" fill="#ffffff"/>
+  <text x="790" y="275" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="800" fill="#6B1818">Lezzet Yolculuğumuz</text>
+  <text x="790" y="335" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="600" fill="#8B1E1E">2012'den bugüne üretim, emek ve kalite</text>
+  <text x="790" y="410" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="24" fill="#57534E">Konya'da başlayan hikayemiz, aile şirketi disipliniyle</text>
+  <text x="790" y="450" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="24" fill="#57534E">günlük üretim ve özgün tarif anlayışıyla büyümeye devam ediyor.</text>
+</svg>

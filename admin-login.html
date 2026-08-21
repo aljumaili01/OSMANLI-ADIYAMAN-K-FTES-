@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Acılı Çiğköfte | Yönetim Girişi</title>
+    <script>
+      if (typeof localStorage !== "undefined" && localStorage.getItem("isAdminLoggedIn") === "true") {
+        try { window.location.replace("admin.html"); } catch (_) { window.location.href = "admin.html"; }
+      }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                red: "#6B1818",
+                cream: "#FDFBF7",
+                beige: "#F7F4EF",
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./assets/css/styles.css?v=20260820-v5" />
+  </head>
+  <body class="min-h-screen bg-[#FDFBF7] font-[Inter] text-stone-800">
+    <main id="login-view" class="mx-auto flex min-h-screen max-w-7xl items-center px-4 py-10 sm:px-6 lg:px-8">
+      <div class="grid w-full overflow-hidden rounded-[36px] bg-white shadow-2xl md:grid-cols-[1fr_0.9fr]">
+        <section class="brand-hero hidden min-h-[620px] p-10 text-white md:block">
+          <div class="h-full rounded-[32px] border border-white/10 bg-white/10 p-8">
+            <p class="text-sm font-bold uppercase tracking-[0.25em] text-amber-200">Yönetici Girişi</p>
+            <h1 class="mt-4 text-4xl font-extrabold leading-tight text-white">
+              Kurumsal vitrin içeriklerini, ürün görsellerini ve bayi ağını tek panelden yönetin.
+            </h1>
+            <p class="mt-6 max-w-md text-base leading-7 text-white/90">
+              Yönetim alanında bölüm bazlı içerik düzenleme, yerel görsel seçimi ve başvuru takibi birlikte çalışır.
+            </p>
+          </div>
+        </section>
+
+        <section class="flex items-center justify-center bg-[#FDFBF7] p-6 sm:p-10">
+          <div class="w-full max-w-md space-y-6">
+            <div>
+              <p class="text-sm font-bold uppercase tracking-[0.25em] text-amber-700">Yönetici Girişi</p>
+              <h2 class="mt-3 text-3xl font-extrabold text-stone-900">Gizli yönetim paneli</h2>
+              <p class="mt-2 text-sm leading-6 text-stone-500">
+                Demo giriş bilgisi: <strong>admin</strong> / <strong>Cigkofte123!</strong>
+              </p>
+            </div>
+
+            <form
+              id="login-form"
+              class="space-y-4 rounded-[28px] border border-stone-200 bg-white p-6"
+              novalidate
+              autocomplete="on"
+            >
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-stone-700" for="username">Kullanıcı Adı</label>
+                <input
+                  id="username"
+                  name="username"
+                  type="text"
+                  autocomplete="username"
+                  inputmode="text"
+                  tabindex="1"
+                  class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3 text-base text-stone-900 shadow-sm outline-none transition focus:border-[#6B1818] focus:ring-2 focus:ring-amber-300/50"
+                  placeholder="Kullanıcı adını girin"
+                />
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-stone-700" for="password">Şifre</label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autocomplete="current-password"
+                  inputmode="text"
+                  tabindex="2"
+                  class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3 text-base text-stone-900 shadow-sm outline-none transition focus:border-[#6B1818] focus:ring-2 focus:ring-amber-300/50"
+                  placeholder="Şifrenizi girin"
+                />
+              </div>
+              <button
+                id="login-submit-button"
+                type="submit"
+                tabindex="3"
+                class="w-full cursor-pointer rounded-2xl bg-[#6B1818] px-5 py-4 text-sm font-bold text-white shadow-md transition hover:bg-[#561212] active:scale-[0.995]"
+              >
+                Panele Giriş Yap
+              </button>
+              <p id="login-feedback" class="text-sm font-medium" role="status" aria-live="polite"></p>
+            </form>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script src="./assets/js/shared/pySyncClient.js?v=20260820-v5"></script>
+    <script>
+      (function () {
+        function finalLoginSubmit(event) {
+          if (event && typeof event.preventDefault === "function") {
+            try { event.preventDefault(); } catch (e1) {}
+            try { event.stopPropagation(); } catch (e2) {}
+          }
+          var uEl = document.getElementById("username");
+          var pEl = document.getElementById("password");
+          var fEl = document.getElementById("login-feedback");
+          var username = uEl ? String(uEl.value || "").trim() : "";
+          var password = pEl ? String(pEl.value || "") : "";
+          if (!username || !password) {
+            if (fEl) {
+              fEl.className = "text-sm font-medium text-red-700";
+              fEl.textContent = "Lütfen kullanıcı adınızı ve şifrenizi giriniz.";
+            } else {
+              try { alert("Lütfen kullanıcı adınızı ve şifrenizi giriniz."); } catch (_) {}
+            }
+            return false;
+          }
+          if (username === "admin" && password === "Cigkofte123!") {
+            try {
+              localStorage.setItem("isAdminLoggedIn", "true");
+              localStorage.setItem("ckft_admin_login_time", String(Date.now()));
+            } catch (e) {
+              try { alert("Tarayıcı gizlilik modu açık. Lütfen normal pencerede deneyin."); } catch (_) {}
+              return false;
+            }
+            try {
+              if (window.PySyncClient && typeof window.PySyncClient.bootstrapSecretFromWindow === "function") {
+                window.PySyncClient.bootstrapSecretFromWindow();
+              }
+              if (window.PySyncClient && typeof window.PySyncClient.onAdminAuthenticated === "function") {
+                window.PySyncClient.onAdminAuthenticated(window.DB_API_SECRET || window.__CKFT_DB_SECRET__ || "");
+              }
+            } catch (_syncErr) { /* ignore */ }
+            if (fEl) {
+              fEl.className = "text-sm font-medium text-green-700";
+              fEl.textContent = "Giriş başarılı. Yönetim paneline yönlendiriliyorsunuz…";
+            }
+            try { window.location.replace("admin.html"); }
+            catch (e2) { try { window.location.href = "admin.html"; } catch (_3) {} }
+            return false;
+          }
+          if (fEl) {
+            fEl.className = "text-sm font-medium text-red-700";
+            fEl.textContent = "Kullanıcı adı veya şifre hatalı!";
+          } else {
+            try { alert("Kullanıcı adı veya şifre hatalı!"); } catch (_) {}
+          }
+          return false;
+        }
+
+        function attachHandlers() {
+          var form = document.getElementById("login-form");
+          if (form && !form.__adminLoginAttached) {
+            form.__adminLoginAttached = true;
+            form.addEventListener("submit", finalLoginSubmit, false);
+          }
+          var btn = document.getElementById("login-submit-button");
+          if (btn && !btn.__adminLoginAttached) {
+            btn.__adminLoginAttached = true;
+            btn.addEventListener("click", function (e) { return finalLoginSubmit(e); });
+          }
+          var u = document.getElementById("username");
+          if (u) { try { u.removeAttribute("disabled"); u.tabIndex = 1; u.focus && setTimeout(function () { u.focus(); }, 80); } catch (_) {} }
+          var p = document.getElementById("password");
+          if (p) { try { p.removeAttribute("disabled"); p.tabIndex = 2; } catch (_) {} }
+        }
+
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", attachHandlers, { once: true });
+        } else {
+          attachHandlers();
+        }
+        window.addEventListener("load", function () { setTimeout(attachHandlers, 30); });
+      })();
+    </script>
+  </body>
+</html>

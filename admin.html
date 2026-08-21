@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Acılı Çiğköfte | Yönetim Paneli</title>
+    <script>
+      (function () {
+        var AUTH_KEY = "isAdminLoggedIn";
+        var isAuthed = false;
+        try {
+          isAuthed = localStorage.getItem(AUTH_KEY) === "true";
+        } catch (e) {
+          isAuthed = false;
+        }
+
+        if (!isAuthed) {
+          window.location.replace("admin-login.html");
+          return;
+        }
+
+        function __attachAdminLoginFallback() {
+          try {
+            var form = document.getElementById("login-form");
+            if (!form) return;
+            if (form.__adminFallbackAttached) return;
+            form.__adminFallbackAttached = true;
+
+            form.addEventListener("submit", function (event) {
+              event.preventDefault();
+
+              var u = document.getElementById("username");
+              var p = document.getElementById("password");
+              var f = document.getElementById("login-feedback");
+
+              var username = u ? String(u.value || "").trim() : "";
+              var password = p ? String(p.value || "") : "";
+
+              if (!username || !password) {
+                if (f) {
+                  f.className = "text-sm font-medium text-red-700";
+                  f.textContent = "Lütfen kullanıcı adınızı ve şifrenizi giriniz.";
+                } else {
+                  alert("Lütfen kullanıcı adınızı ve şifrenizi giriniz.");
+                }
+                return;
+              }
+
+              if (username === "admin" && password === "Cigkofte123!") {
+                try {
+                  localStorage.setItem("isAdminLoggedIn", "true");
+                  localStorage.setItem("ckft_admin_login_time", String(Date.now()));
+                } catch (err) {
+                  alert("Tarayıcı gizlilik modu açık. Lütfen normal pencerede deneyin.");
+                  return;
+                }
+                if (f) {
+                  f.className = "text-sm font-medium text-green-700";
+                  f.textContent = "Giriş başarılı. Yönetim paneline yönlendiriliyorsunuz…";
+                }
+                window.location.replace("admin.html");
+                return;
+              }
+
+              if (f) {
+                f.className = "text-sm font-medium text-red-700";
+                f.textContent = "Kullanıcı adı veya şifre hatalı!";
+              } else {
+                alert("Kullanıcı adı veya şifre hatalı!");
+              }
+            });
+          } catch (err) {}
+        }
+
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", __attachAdminLoginFallback);
+        } else {
+          __attachAdminLoginFallback();
+        }
+        window.addEventListener("load", function () {
+          setTimeout(__attachAdminLoginFallback, 0);
+          setTimeout(__attachAdminLoginFallback, 200);
+        });
+      })();
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                red: "#6B1818",
+                cream: "#FDFBF7",
+                beige: "#F7F4EF",
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./assets/css/styles.css" />
+  </head>
+  <body class="min-h-screen bg-[#FDFBF7] font-[Inter] text-stone-800">
+    <main id="dashboard-view" class="min-h-screen bg-[#F7F4EF]">
+      <div class="grid min-h-screen lg:grid-cols-[290px_1fr]">
+        <aside class="bg-[#6B1818] px-6 py-8 text-white">
+          <p class="text-lg font-extrabold tracking-[0.25em]">ACILI</p>
+          <p class="mt-2 text-sm text-red-100/70">Kurumsal Yönetim Paneli</p>
+
+          <nav class="mt-10 space-y-2 text-sm">
+            <button type="button" data-admin-tab="genel-bakis" class="admin-nav-link block w-full rounded-2xl bg-white/10 px-4 py-3 text-left font-semibold">Genel Bakış</button>
+            <button type="button" data-admin-tab="genel-ayarlar" class="admin-nav-link block w-full rounded-2xl px-4 py-3 text-left text-red-100/80">Genel Ayarlar</button>
+            <button type="button" data-admin-tab="sayfa-basliklari" class="admin-nav-link block w-full rounded-2xl px-4 py-3 text-left text-red-100/80">Sayfa Başlıkları</button>
+            <button type="button" data-admin-tab="ana-sayfa-sag-kart" class="admin-nav-link block w-full rounded-2xl px-4 py-3 text-left text-red-100/80">Ana Sayfa Sağ Kart</button>
+            <button type="button" data-admin-tab="sifre-degistirme" class="admin-nav-link block w-full rounded-2xl px-4 py-3 text-left text-red-100/80">Şifre Değiştirme</button>
+            <button type="button" data-admin-tab="urun-yonetimi" class="admin-nav-link block w-full rounded-2xl px-4 py-3 text-left text-red-100/80">Ürün Yönetimi</button>
+            <button type="button" data-admin-tab="bayilik-paketleri" class="admin-nav-link block w-full rounded-2xl px-4 py-3 text-left text-red-100/80">Bayilik Paketleri</button>
+            <button type="button" data-admin-tab="bayi-yonetimi" class="admin-nav-link block w-full rounded-2xl px-4 py-3 text-left text-red-100/80">Bayi Ağı Yönetimi</button>
+            <button type="button" data-admin-tab="basvurular" class="admin-nav-link block w-full rounded-2xl px-4 py-3 text-left text-red-100/80">Bayilik Başvuruları</button>
+          </nav>
+
+          <button id="logout-button" type="button" class="mt-10 w-full rounded-2xl border border-white/15 px-4 py-3 text-sm font-semibold text-white">
+            Çıkış Yap
+          </button>
+        </aside>
+
+        <section class="space-y-8 px-4 py-6 sm:px-6 lg:px-8">
+          <div>
+            <p class="text-sm font-bold uppercase tracking-[0.24em] text-amber-700">Yönetim Merkezi</p>
+            <h1 class="mt-2 text-3xl font-extrabold text-stone-900">Kurumsal içerik ve vitrin yönetimi</h1>
+          </div>
+
+          <section data-admin-panel="genel-bakis" class="admin-panel-view grid gap-4 md:grid-cols-4">
+            <article class="admin-card rounded-[28px] bg-white p-6">
+              <p class="text-sm font-semibold text-stone-500">Aktif Ürünler</p>
+              <p id="total-products" class="mt-3 text-4xl font-extrabold text-stone-900">0</p>
+            </article>
+            <article class="admin-card rounded-[28px] bg-white p-6">
+              <p class="text-sm font-semibold text-stone-500">Toplam Bayi</p>
+              <p id="total-dealers" class="mt-3 text-4xl font-extrabold text-stone-900">0</p>
+            </article>
+            <article class="admin-card rounded-[28px] bg-white p-6">
+              <p class="text-sm font-semibold text-stone-500">Toplam Başvuru</p>
+              <p id="total-applications" class="mt-3 text-4xl font-extrabold text-stone-900">0</p>
+            </article>
+            <article class="admin-card rounded-[28px] bg-white p-6">
+              <p class="text-sm font-semibold text-stone-500">Yeni Başvurular</p>
+              <p id="pending-applications" class="mt-3 text-4xl font-extrabold text-stone-900">0</p>
+            </article>
+          </section>
+
+          <section data-admin-panel="genel-ayarlar" class="admin-panel-view admin-card hidden rounded-[32px] bg-white p-6">
+            <div>
+              <p class="text-sm font-bold uppercase tracking-[0.24em] text-amber-700">Genel Ayarlar</p>
+              <h2 class="mt-2 text-2xl font-extrabold text-stone-900">Site başlığı, bölüm içerikleri ve görseller</h2>
+            </div>
+
+            <form id="settings-form" class="mt-6 space-y-8">
+              <section class="grid gap-4 lg:grid-cols-2">
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-stone-700" for="brandName">Site Başlığı</label>
+                  <input id="brandName" name="brandName" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3" />
+                </div>
+
+                <div data-medya-grubu data-medya-alani="logoUrl" data-otomatik-kaydet="logo">
+                  <label class="mb-2 block text-sm font-semibold text-stone-700" for="logoUpload">Logo Yükle</label>
+                  <input
+                    id="logoUpload"
+                    name="logoUpload"
+                    type="file"
+                    accept="image/*,video/*"
+                    data-medya-dosya
+                    class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3"
+                  />
+                  <p class="mt-2 text-xs leading-6 text-stone-500">
+                    Bilgisayarınızdan bir logo görseli seçin. Yeni görsel seçilmezse mevcut logo korunur.
+                  </p>
+                  <img data-medya-onizleme alt="Logo önizleme" class="mt-3 hidden h-28 w-28 rounded-2xl border border-stone-200 bg-white object-cover" />
+                  <p id="logo-feedback" class="mt-3 text-sm font-medium text-green-700"></p>
+                </div>
+
+                <div class="lg:col-span-2">
+                  <label class="mb-2 block text-sm font-semibold text-stone-700" for="slogan">Slogan</label>
+                  <input id="slogan" name="slogan" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3" />
+                </div>
+                <div class="lg:col-span-2">
+                  <label class="mb-2 block text-sm font-semibold text-stone-700" for="heroDescription">Ana Sayfa Açıklaması</label>
+                  <textarea id="heroDescription" name="heroDescription" rows="3" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3"></textarea>
+                </div>
+              </section>
+
+              <section class="rounded-[28px] border border-stone-200 bg-[#FDFBF7] p-5">
+                <h3 class="text-lg font-extrabold text-stone-900">Lezzet Yolculuğumuz</h3>
+                <div class="mt-4 grid gap-4 lg:grid-cols-2">
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="journeyTitle">Başlık</label>
+                    <input id="journeyTitle" name="journeyTitle" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                  </div>
+                  <div data-medya-grubu data-medya-alani="journeyImageUrl">
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="journeyImageUpload">Bölüm Görseli / Videosu Yükle</label>
+                    <input
+                      id="journeyImageUpload"
+                      name="journeyImageUpload"
+                      type="file"
+                      accept="image/*,video/*"
+                      data-medya-dosya
+                      class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3"
+                    />
+                    <p class="mt-2 text-xs leading-6 text-stone-500">
+                      Yeni görsel seçilmezse mevcut bölüm görseli korunur.
+                    </p>
+                    <img data-medya-onizleme alt="Lezzet yolculuğu görsel önizleme" class="mt-3 hidden h-40 w-full rounded-2xl border border-stone-200 bg-white object-cover" />
+                  </div>
+                  <div class="lg:col-span-2">
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="journeyText">Metin</label>
+                    <textarea id="journeyText" name="journeyText" rows="5" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3"></textarea>
+                  </div>
+                </div>
+              </section>
+
+              <section class="rounded-[28px] border border-stone-200 bg-[#FDFBF7] p-5">
+                <h3 class="text-lg font-extrabold text-stone-900">Kalite ve Neden Biz?</h3>
+                <div class="mt-4 grid gap-4 lg:grid-cols-2">
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="qualityTitle">Kalite Başlığı</label>
+                    <input id="qualityTitle" name="qualityTitle" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                  </div>
+                  <div class="lg:col-span-2">
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="qualityText">Kalite Metni</label>
+                    <textarea id="qualityText" name="qualityText" rows="4" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3"></textarea>
+                  </div>
+                  <div class="lg:col-span-2">
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="whyUsTitle">NEDEN BİZ? Başlığı</label>
+                    <input id="whyUsTitle" name="whyUsTitle" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="whyUsText1">NEDEN BİZ? Metin 1</label>
+                    <textarea id="whyUsText1" name="whyUsText1" rows="4" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3"></textarea>
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="whyUsText2">NEDEN BİZ? Metin 2</label>
+                    <textarea id="whyUsText2" name="whyUsText2" rows="4" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3"></textarea>
+                  </div>
+                  <div class="lg:col-span-2">
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="whyUsText3">NEDEN BİZ? Metin 3</label>
+                    <textarea id="whyUsText3" name="whyUsText3" rows="4" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3"></textarea>
+                  </div>
+                </div>
+              </section>
+
+              <section class="rounded-[28px] border border-stone-200 bg-[#FDFBF7] p-5">
+                <h3 class="text-lg font-extrabold text-stone-900">Bayilik ve Vizyon</h3>
+                <div class="mt-4 grid gap-4 lg:grid-cols-2">
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="franchiseTitle">Bayilik Başlığı</label>
+                    <input id="franchiseTitle" name="franchiseTitle" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="franchiseSlogan">Bayilik Sloganı</label>
+                    <input id="franchiseSlogan" name="franchiseSlogan" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                  </div>
+                  <div class="lg:col-span-2">
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="franchiseText">Bayilik Metni</label>
+                    <textarea id="franchiseText" name="franchiseText" rows="4" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3"></textarea>
+                  </div>
+                  <div data-medya-grubu data-medya-alani="franchiseImageUrl">
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="franchiseImageUpload">Bayilik Görseli / Videosu Yükle</label>
+                    <input
+                      id="franchiseImageUpload"
+                      name="franchiseImageUpload"
+                      type="file"
+                      accept="image/*,video/*"
+                      data-medya-dosya
+                      class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3"
+                    />
+                    <p class="mt-2 text-xs leading-6 text-stone-500">
+                      Yeni görsel seçilmezse mevcut bayilik görseli korunur.
+                    </p>
+                    <img data-medya-onizleme alt="Bayilik görsel önizleme" class="mt-3 hidden h-40 w-full rounded-2xl border border-stone-200 bg-white object-cover" />
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="visionTitle">Vizyon Başlığı</label>
+                    <input id="visionTitle" name="visionTitle" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                  </div>
+                  <div data-medya-grubu data-medya-alani="visionImageUrl">
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="visionImageUpload">Vizyon Görseli / Videosu Yükle</label>
+                    <input
+                      id="visionImageUpload"
+                      name="visionImageUpload"
+                      type="file"
+                      accept="image/*,video/*"
+                      data-medya-dosya
+                      class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3"
+                    />
+                    <p class="mt-2 text-xs leading-6 text-stone-500">
+                      Yeni görsel seçilmezse mevcut vizyon görseli korunur.
+                    </p>
+                    <img data-medya-onizleme alt="Vizyon görsel önizleme" class="mt-3 hidden h-40 w-full rounded-2xl border border-stone-200 bg-white object-cover" />
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="visionPoint1Title">Vizyon Madde 1 Başlığı</label>
+                    <input id="visionPoint1Title" name="visionPoint1Title" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="visionPoint1Text">Vizyon Madde 1 Metni</label>
+                    <textarea id="visionPoint1Text" name="visionPoint1Text" rows="3" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3"></textarea>
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="visionPoint2Title">Vizyon Madde 2 Başlığı</label>
+                    <input id="visionPoint2Title" name="visionPoint2Title" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="visionPoint2Text">Vizyon Madde 2 Metni</label>
+                    <textarea id="visionPoint2Text" name="visionPoint2Text" rows="3" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3"></textarea>
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="visionPoint3Title">Vizyon Madde 3 Başlığı</label>
+                    <input id="visionPoint3Title" name="visionPoint3Title" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="visionPoint3Text">Vizyon Madde 3 Metni</label>
+                    <textarea id="visionPoint3Text" name="visionPoint3Text" rows="3" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3"></textarea>
+                  </div>
+                </div>
+              </section>
+
+              <section class="rounded-[28px] border border-stone-200 bg-[#FDFBF7] p-5">
+                <h3 class="text-lg font-extrabold text-stone-900">Kurumsal Metinler ve İletişim</h3>
+                <div class="mt-4 grid gap-4 lg:grid-cols-2">
+                  <div class="lg:col-span-2">
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="aboutStory">Hakkımızda Metni</label>
+                    <textarea id="aboutStory" name="aboutStory" rows="4" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3"></textarea>
+                  </div>
+                  <div class="lg:col-span-2">
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="aboutQuality">Kalite Metni</label>
+                    <textarea id="aboutQuality" name="aboutQuality" rows="4" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3"></textarea>
+                  </div>
+                  <div class="lg:col-span-2">
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="aboutVision">Kurumsal Vizyon Özeti</label>
+                    <textarea id="aboutVision" name="aboutVision" rows="4" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3"></textarea>
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="contactPhone">Telefon</label>
+                    <input id="contactPhone" name="contactPhone" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="whatsappPhone">WhatsApp Destek Numarası</label>
+                    <input id="whatsappPhone" name="whatsappPhone" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="contactEmail">E-posta</label>
+                    <input id="contactEmail" name="contactEmail" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="contactHours">Çalışma Saatleri</label>
+                    <input id="contactHours" name="contactHours" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="headquartersTitle">Merkez Başlığı</label>
+                    <input id="headquartersTitle" name="headquartersTitle" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                  </div>
+                  <div class="lg:col-span-2">
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="contactAddress">Adres</label>
+                    <textarea id="contactAddress" name="contactAddress" rows="3" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3"></textarea>
+                  </div>
+                  <div class="lg:col-span-2">
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="mapPlaceholder">Harita Açıklaması</label>
+                    <textarea id="mapPlaceholder" name="mapPlaceholder" rows="3" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3"></textarea>
+                  </div>
+                  <div class="lg:col-span-2">
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="headquartersMapEmbedUrl">Genel Müdürlük Harita Gömme Bağlantısı</label>
+                    <input id="headquartersMapEmbedUrl" name="headquartersMapEmbedUrl" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                  </div>
+                </div>
+              </section>
+
+              <div>
+                <button type="submit" class="w-full rounded-2xl bg-[#6B1818] px-5 py-4 text-sm font-bold text-white">Genel Ayarları Kaydet</button>
+                <p id="settings-feedback" class="mt-4 text-sm font-medium text-green-700"></p>
+              </div>
+            </form>
+          </section>
+
+          <section data-admin-panel="ana-sayfa-sag-kart" class="admin-panel-view admin-card hidden rounded-[32px] bg-white p-6">
+            <div>
+              <p class="text-sm font-bold uppercase tracking-[0.24em] text-amber-700">Ana Sayfa Sağ Kart</p>
+              <h2 class="mt-2 text-2xl font-extrabold text-stone-900">Özet kart metinleri ve sayıları</h2>
+            </div>
+
+            <form id="hero-card-form" class="mt-6 grid gap-4 lg:grid-cols-2">
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-stone-700" for="heroCardProductLabel">Birinci Başlık</label>
+                <input id="heroCardProductLabel" name="heroCardProductLabel" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3" />
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-stone-700" for="heroCardProductValue">Birinci Değer</label>
+                <input id="heroCardProductValue" name="heroCardProductValue" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3" />
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-stone-700" for="heroCardDealerLabel">İkinci Başlık</label>
+                <input id="heroCardDealerLabel" name="heroCardDealerLabel" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3" />
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-stone-700" for="heroCardDealerValue">İkinci Değer</label>
+                <input id="heroCardDealerValue" name="heroCardDealerValue" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3" />
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-stone-700" for="heroCardApplicationLabel">Üçüncü Başlık</label>
+                <input id="heroCardApplicationLabel" name="heroCardApplicationLabel" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3" />
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-stone-700" for="heroCardApplicationValue">Üçüncü Değer</label>
+                <input id="heroCardApplicationValue" name="heroCardApplicationValue" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3" />
+              </div>
+              <div class="lg:col-span-2">
+                <label class="mb-2 block text-sm font-semibold text-stone-700" for="heroCardSummaryLabel">Özet Başlığı</label>
+                <input id="heroCardSummaryLabel" name="heroCardSummaryLabel" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3" />
+              </div>
+              <div class="lg:col-span-2">
+                <label class="mb-2 block text-sm font-semibold text-stone-700" for="heroCardSummaryText">Özet Metni</label>
+                <textarea id="heroCardSummaryText" name="heroCardSummaryText" rows="5" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3"></textarea>
+              </div>
+              <div class="lg:col-span-2">
+                <button type="submit" class="w-full rounded-2xl bg-[#6B1818] px-5 py-4 text-sm font-bold text-white">Sağ Kartı Kaydet</button>
+                <p id="hero-card-feedback" class="mt-4 text-sm font-medium text-green-700"></p>
+              </div>
+            </form>
+          </section>
+
+          <section data-admin-panel="sifre-degistirme" class="admin-panel-view admin-card hidden rounded-[32px] bg-white p-6">
+            <div>
+              <p class="text-sm font-bold uppercase tracking-[0.24em] text-amber-700">Şifre Değiştirme</p>
+              <h2 class="mt-2 text-2xl font-extrabold text-stone-900">Yönetici şifresini güncelle</h2>
+            </div>
+
+            <form id="password-form" class="mt-6 grid gap-4 lg:grid-cols-3">
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-stone-700" for="oldPassword">Eski Şifre</label>
+                <input id="oldPassword" name="oldPassword" type="password" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3" />
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-stone-700" for="newPassword">Yeni Şifre</label>
+                <input id="newPassword" name="newPassword" type="password" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3" />
+              </div>
+              <div>
+                <label class="mb-2 block text-sm font-semibold text-stone-700" for="newPasswordRepeat">Yeni Şifre Tekrar</label>
+                <input id="newPasswordRepeat" name="newPasswordRepeat" type="password" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3" />
+              </div>
+              <div class="lg:col-span-3">
+                <button type="submit" class="w-full rounded-2xl bg-stone-900 px-5 py-4 text-sm font-bold text-white">Şifreyi Kaydet</button>
+                <p id="password-feedback" class="mt-4 text-sm font-medium text-green-700"></p>
+              </div>
+            </form>
+          </section>
+
+          <section data-admin-panel="sayfa-basliklari" class="admin-panel-view admin-card hidden rounded-[32px] bg-white p-6">
+            <div>
+              <p class="text-sm font-bold uppercase tracking-[0.24em] text-amber-700">Sayfa Başlıkları</p>
+              <h2 class="mt-2 text-2xl font-extrabold text-stone-900">Her sayfanın görüntü adını ve başlığını özelleştirin</h2>
+              <p class="mt-3 text-sm leading-6 text-stone-500">
+                Her sayfa için <strong>tarayıcı sekme başlığını</strong> (title etiketi) ve <strong>sayfa üstü ana başlığı</strong> (header) dinamik olarak yönetin.
+              </p>
+            </div>
+            <form id="page-titles-form" class="mt-6 grid gap-4 lg:grid-cols-2">
+              <div class="space-y-4 rounded-[24px] border border-stone-200 bg-[#FDFBF7] p-5">
+                <p class="text-sm font-bold text-stone-900">Ana Sayfa (index.html)</p>
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-stone-700" for="pt-index-title">Görüntü Adı / Sekme Başlığı</label>
+                  <input id="pt-index-title" name="index.title" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                </div>
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-stone-700" for="pt-index-headerTitle">Sayfa Üstü Ana Başlık (opsiyonel)</label>
+                  <input id="pt-index-headerTitle" name="index.headerTitle" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                </div>
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-stone-700" for="pt-index-headerSubtitle">Sayfa Üstü Alt Başlık (opsiyonel)</label>
+                  <input id="pt-index-headerSubtitle" name="index.headerSubtitle" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                </div>
+              </div>
+
+              <div class="space-y-4 rounded-[24px] border border-stone-200 bg-[#FDFBF7] p-5">
+                <p class="text-sm font-bold text-stone-900">Ürünlerimiz (urunlerimiz.html)</p>
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-stone-700" for="pt-urunlerimiz-title">Görüntü Adı / Sekme Başlığı</label>
+                  <input id="pt-urunlerimiz-title" name="urunlerimiz.title" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                </div>
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-stone-700" for="pt-urunlerimiz-headerTitle">Sayfa Üstü Ana Başlık (opsiyonel)</label>
+                  <input id="pt-urunlerimiz-headerTitle" name="urunlerimiz.headerTitle" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                </div>
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-stone-700" for="pt-urunlerimiz-headerSubtitle">Sayfa Üstü Alt Başlık (opsiyonel)</label>
+                  <input id="pt-urunlerimiz-headerSubtitle" name="urunlerimiz.headerSubtitle" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                </div>
+              </div>
+
+              <div class="space-y-4 rounded-[24px] border border-stone-200 bg-[#FDFBF7] p-5">
+                <p class="text-sm font-bold text-stone-900">Hakkımızda (hakkimizda.html)</p>
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-stone-700" for="pt-hakkimizda-title">Görüntü Adı / Sekme Başlığı</label>
+                  <input id="pt-hakkimizda-title" name="hakkimizda.title" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                </div>
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-stone-700" for="pt-hakkimizda-headerTitle">Sayfa Üstü Ana Başlık (opsiyonel)</label>
+                  <input id="pt-hakkimizda-headerTitle" name="hakkimizda.headerTitle" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                </div>
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-stone-700" for="pt-hakkimizda-headerSubtitle">Sayfa Üstü Alt Başlık (opsiyonel)</label>
+                  <input id="pt-hakkimizda-headerSubtitle" name="hakkimizda.headerSubtitle" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                </div>
+              </div>
+
+              <div class="space-y-4 rounded-[24px] border border-stone-200 bg-[#FDFBF7] p-5">
+                <p class="text-sm font-bold text-stone-900">Bayilerimiz (bayilerimiz.html)</p>
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-stone-700" for="pt-bayilerimiz-title">Görüntü Adı / Sekme Başlığı</label>
+                  <input id="pt-bayilerimiz-title" name="bayilerimiz.title" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                </div>
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-stone-700" for="pt-bayilerimiz-headerTitle">Sayfa Üstü Ana Başlık (opsiyonel)</label>
+                  <input id="pt-bayilerimiz-headerTitle" name="bayilerimiz.headerTitle" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                </div>
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-stone-700" for="pt-bayilerimiz-headerSubtitle">Sayfa Üstü Alt Başlık (opsiyonel)</label>
+                  <input id="pt-bayilerimiz-headerSubtitle" name="bayilerimiz.headerSubtitle" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                </div>
+              </div>
+
+              <div class="space-y-4 rounded-[24px] border border-stone-200 bg-[#FDFBF7] p-5">
+                <p class="text-sm font-bold text-stone-900">Bayimiz Olun (bayilik-basvurusu.html)</p>
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-stone-700" for="pt-bayilik-basvurusu-title">Görüntü Adı / Sekme Başlığı</label>
+                  <input id="pt-bayilik-basvurusu-title" name="bayilik-basvurusu.title" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                </div>
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-stone-700" for="pt-bayilik-basvurusu-headerTitle">Sayfa Üstü Ana Başlık (opsiyonel)</label>
+                  <input id="pt-bayilik-basvurusu-headerTitle" name="bayilik-basvurusu.headerTitle" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                </div>
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-stone-700" for="pt-bayilik-basvurusu-headerSubtitle">Sayfa Üstü Alt Başlık (opsiyonel)</label>
+                  <input id="pt-bayilik-basvurusu-headerSubtitle" name="bayilik-basvurusu.headerSubtitle" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                </div>
+              </div>
+
+              <div class="space-y-4 rounded-[24px] border border-stone-200 bg-[#FDFBF7] p-5">
+                <p class="text-sm font-bold text-stone-900">İletişim (iletisim.html)</p>
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-stone-700" for="pt-iletisim-title">Görüntü Adı / Sekme Başlığı</label>
+                  <input id="pt-iletisim-title" name="iletisim.title" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                </div>
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-stone-700" for="pt-iletisim-headerTitle">Sayfa Üstü Ana Başlık (opsiyonel)</label>
+                  <input id="pt-iletisim-headerTitle" name="iletisim.headerTitle" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                </div>
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-stone-700" for="pt-iletisim-headerSubtitle">Sayfa Üstü Alt Başlık (opsiyonel)</label>
+                  <input id="pt-iletisim-headerSubtitle" name="iletisim.headerSubtitle" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3" />
+                </div>
+              </div>
+
+              <div class="lg:col-span-2">
+                <button type="submit" class="w-full rounded-2xl bg-[#6B1818] px-5 py-4 text-sm font-bold text-white">Sayfa Başlıklarını Kaydet</button>
+                <p id="page-titles-feedback" class="mt-4 text-sm font-medium text-green-700"></p>
+              </div>
+            </form>
+          </section>
+
+          <section data-admin-panel="urun-yonetimi" class="admin-panel-view hidden space-y-6">
+            <div class="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+              <article class="admin-card rounded-[32px] bg-white p-6">
+                <div>
+                  <p class="text-sm font-bold uppercase tracking-[0.24em] text-amber-700">Ürün Yönetimi</p>
+                  <h2 id="product-form-title" class="mt-2 text-2xl font-extrabold text-stone-900">Yeni Ürün Ekle</h2>
+                </div>
+
+                <form id="product-form" class="mt-6 space-y-4">
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="product-name">Ürün Adı</label>
+                    <input id="product-name" name="name" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3" />
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="product-category">Kategori</label>
+                    <select id="product-category" name="category" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3">
+                      <option value="">Kategori seçiniz</option>
+                      <option value="durumler">Dürümler</option>
+                      <option value="porsiyonlar">Porsiyonlar</option>
+                      <option value="etsiz-cigkofte">Etsiz Çiğköfte Çeşitleri</option>
+                      <option value="ikramliklar">Özel İkramlıklar</option>
+                    </select>
+                  </div>
+                  <div data-medya-grubu data-medya-alani="image">
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="product-image-upload">Ürün Görseli / Videosu Yükle</label>
+                    <input
+                      id="product-image-upload"
+                      name="productImageUpload"
+                      type="file"
+                      accept="image/*,video/*"
+                      data-medya-dosya
+                      class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3"
+                    />
+                    <p class="mt-2 text-xs leading-6 text-stone-500">
+                      Yeni ürün eklerken görsel yükleyin. Düzenleme sırasında yeni görsel seçilmezse mevcut görsel korunur.
+                    </p>
+                    <img data-medya-onizleme alt="Ürün görsel önizleme" class="mt-3 hidden h-48 w-full rounded-2xl border border-stone-200 bg-white object-cover" />
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="product-description">Açıklama</label>
+                    <textarea id="product-description" name="description" rows="4" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3"></textarea>
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="product-badges">Rozetler</label>
+                    <input id="product-badges" name="badges" placeholder="Günlük Taze, Özel Soslu" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3" />
+                  </div>
+                  <label class="flex items-center gap-3 rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3 text-sm font-medium text-stone-700">
+                    <input type="checkbox" name="active" class="h-4 w-4" checked />
+                    Ürün aktif olsun
+                  </label>
+                  <button type="submit" class="w-full rounded-2xl bg-[#6B1818] px-5 py-4 text-sm font-bold text-white">Ürünü Kaydet</button>
+                  <p id="product-form-feedback" class="text-sm font-medium text-green-700"></p>
+                </form>
+              </article>
+
+              <article class="admin-card rounded-[32px] bg-white p-6">
+                <div>
+                  <p class="text-sm font-bold uppercase tracking-[0.24em] text-amber-700">Ürün Listesi</p>
+                  <h2 class="mt-2 text-2xl font-extrabold text-stone-900">Ürünleri satır içinde yönetin</h2>
+                </div>
+                <div id="product-list" class="mt-6 space-y-4"></div>
+              </article>
+            </div>
+
+            <article class="admin-card rounded-[32px] bg-white p-6">
+              <div>
+                <p class="text-sm font-bold uppercase tracking-[0.24em] text-amber-700">Ürün / Yemek Görselleri</p>
+                <h2 class="mt-2 text-2xl font-extrabold text-stone-900">Ürün paneli içinden galeri yönetimi</h2>
+              </div>
+              <form id="food-images-form" class="mt-6 space-y-4">
+                <div>
+                  <label class="mb-2 block text-sm font-semibold text-stone-700" for="foodImagesInput">Ürün görselleri / videoları yükle</label>
+                  <input id="foodImagesInput" name="foodImagesInput" type="file" accept="image/*,video/*" multiple class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3" />
+                </div>
+                <button type="submit" class="rounded-2xl bg-stone-900 px-5 py-4 text-sm font-bold text-white">Ürün Görsellerini Kaydet</button>
+                <p id="food-images-feedback" class="text-sm font-medium text-green-700"></p>
+              </form>
+              <div id="food-images-list" class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3"></div>
+            </article>
+          </section>
+
+          <section data-admin-panel="bayilik-paketleri" class="admin-panel-view hidden space-y-6">
+            <div class="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+              <article class="admin-card rounded-[32px] bg-white p-6">
+                <div>
+                  <p class="text-sm font-bold uppercase tracking-[0.24em] text-amber-700">Bayilik Paketleri</p>
+                  <h2 id="package-form-title" class="mt-2 text-2xl font-extrabold text-stone-900">Yeni Paket Ekle</h2>
+                  <p class="mt-3 text-sm leading-6 text-stone-500">
+                    Her paket için başlık, açıklama, yatırım tutarı, özellikler listesi ve görsel/video tanıtımı ekleyin.
+                  </p>
+                </div>
+
+                <form id="package-form" class="mt-6 space-y-4">
+                  <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="sm:col-span-2">
+                      <label class="mb-2 block text-sm font-semibold text-stone-700" for="package-title">Paket Adı</label>
+                      <input id="package-title" name="title" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3" />
+                    </div>
+                    <div>
+                      <label class="mb-2 block text-sm font-semibold text-stone-700" for="package-price">Yatırım Tutarı / Fiyat</label>
+                      <input id="package-price" name="price" placeholder="₺450.000" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3" />
+                    </div>
+                    <div>
+                      <label class="mb-2 block text-sm font-semibold text-stone-700" for="package-order">Görüntüleme Sırası</label>
+                      <input id="package-order" name="order" type="number" min="1" value="1" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3" />
+                    </div>
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="package-description">Açıklama</label>
+                    <textarea id="package-description" name="description" rows="4" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3"></textarea>
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="package-features">Paket Özellikleri (her satıra bir özellik)</label>
+                    <textarea id="package-features" name="features" rows="6" placeholder="Standart ekipman seti&#10;3 gün eğitim desteği&#10;İlk ay stok desteği" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3"></textarea>
+                  </div>
+                  <div data-medya-grubu data-medya-alani="media" class="rounded-[28px] border border-stone-200 bg-[#FDFBF7] p-4">
+                    <div class="mb-3 grid gap-4 sm:grid-cols-2">
+                      <div>
+                        <label class="mb-2 block text-sm font-semibold text-stone-700" for="package-media-type">Kapak Medyası Türü</label>
+                        <select id="package-media-type" name="mediaType" class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3">
+                          <option value="image">Görsel</option>
+                          <option value="video">Video (MP4, WebM)</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label class="mb-2 block text-sm font-semibold text-stone-700" for="package-media-upload">Kapak Görseli / Video Yükle</label>
+                        <input
+                          id="package-media-upload"
+                          name="packageMediaUpload"
+                          type="file"
+                          accept="image/*,video/*"
+                          data-medya-dosya
+                          class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3"
+                        />
+                      </div>
+                    </div>
+                    <p class="text-xs leading-6 text-stone-500">
+                      Paket kartında kapak olarak gösterilecek tek medya dosyasını buradan yükleyin. Yeni medya seçilmezse mevcut medya korunur.
+                    </p>
+                    <div data-medya-onizleme data-package-preview-container class="mt-4 hidden overflow-hidden rounded-[24px] border border-stone-200 bg-white"></div>
+                  </div>
+
+                  <div data-paket-galeri class="rounded-[28px] border border-stone-200 bg-[#FDFBF7] p-4">
+                    <div class="mb-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                      <div>
+                        <label class="mb-2 block text-sm font-semibold text-stone-700" for="package-gallery-upload">Paket Galerisi (Çoklu Görsel / Video)</label>
+                        <p class="text-xs leading-6 text-stone-500">Aynı anda birden fazla dosya seçebilir; yüklendikten sonra sıralarını ← → oklarıyla değiştirebilirsiniz.</p>
+                      </div>
+                      <div>
+                        <input
+                          id="package-gallery-upload"
+                          name="packageGalleryUpload"
+                          type="file"
+                          accept="image/*,video/*"
+                          multiple
+                          data-paket-galeri-dosya
+                          class="w-full sm:w-auto rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm"
+                        />
+                      </div>
+                    </div>
+                    <div data-paket-galeri-kapak class="mt-2 text-xs font-bold uppercase tracking-[0.18em] text-stone-500 hidden">
+                      Galerideki ilk görsel, sitedeki kartın büyük kapağı olarak da kullanılır.
+                    </div>
+                    <div data-paket-galeri-liste class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4"></div>
+                  </div>
+                  <label class="flex items-center gap-3 rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3 text-sm font-medium text-stone-700">
+                    <input type="checkbox" name="active" class="h-4 w-4" checked />
+                    Paket sitede gösterilsin
+                  </label>
+                  <div class="flex flex-col gap-3 sm:flex-row">
+                    <button id="package-form-submit" type="submit" class="flex-1 rounded-2xl bg-[#6B1818] px-5 py-4 text-sm font-bold text-white">Paketi Kaydet</button>
+                    <button id="package-form-reset" type="button" class="rounded-2xl border border-stone-200 bg-white px-5 py-4 text-sm font-bold text-stone-700">Formu Temizle</button>
+                  </div>
+                  <p id="package-form-feedback" class="text-sm font-medium text-green-700"></p>
+                </form>
+              </article>
+
+              <article class="admin-card rounded-[32px] bg-white p-6">
+                <div>
+                  <p class="text-sm font-bold uppercase tracking-[0.24em] text-amber-700">Paket Listesi</p>
+                  <h2 class="mt-2 text-2xl font-extrabold text-stone-900">Mevcut bayilik paketlerini yönetin</h2>
+                </div>
+                <div id="package-list" class="mt-6 space-y-4"></div>
+              </article>
+            </div>
+          </section>
+
+          <section data-admin-panel="bayi-yonetimi" class="admin-panel-view hidden space-y-6">
+            <div class="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+              <article class="admin-card rounded-[32px] bg-white p-6">
+                <div>
+                  <p class="text-sm font-bold uppercase tracking-[0.24em] text-amber-700">Bayi Ağı Yönetimi</p>
+                  <h2 id="dealer-form-title" class="mt-2 text-2xl font-extrabold text-stone-900">Yeni Bayi Ekle</h2>
+                  <p class="mt-3 text-sm leading-6 text-stone-500">
+                    Şehir, ilçe, şube bilgileri, iletişim, harita ve şube görselini bu tek form üzerinden birlikte yönetin.
+                  </p>
+                </div>
+
+                <form id="dealer-form" class="mt-6 space-y-4">
+                  <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label class="mb-2 block text-sm font-semibold text-stone-700" for="dealer-city">Şehir</label>
+                      <input id="dealer-city" name="city" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3" />
+                    </div>
+                    <div>
+                      <label class="mb-2 block text-sm font-semibold text-stone-700" for="dealer-district">İlçe</label>
+                      <input id="dealer-district" name="district" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3" />
+                    </div>
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="dealer-branch">Şube Adı</label>
+                    <input id="dealer-branch" name="branchName" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3" />
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="dealer-address">Adres</label>
+                    <textarea id="dealer-address" name="address" rows="4" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3"></textarea>
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="dealer-phone">İletişim</label>
+                    <input id="dealer-phone" name="phone" class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3" />
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="dealer-map">Google Maps Gömme Kodu veya Bağlantısı</label>
+                    <input
+                      id="dealer-map"
+                      name="mapEmbedUrl"
+                      placeholder="Google Maps iframe kodu veya gömme bağlantısı"
+                      class="w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3"
+                    />
+                  </div>
+                  <div data-medya-grubu data-medya-alani="image" class="rounded-[28px] border border-stone-200 bg-[#FDFBF7] p-4">
+                    <label class="mb-2 block text-sm font-semibold text-stone-700" for="dealer-image-upload">Şube Görseli / Videosu Yükle</label>
+                    <input
+                      id="dealer-image-upload"
+                      type="file"
+                      accept="image/*,video/*"
+                      data-medya-dosya
+                      class="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3"
+                    />
+                    <p class="mt-2 text-xs leading-6 text-stone-500">
+                      Şube bilgileri ile birlikte yalnızca bu bayiye ait görsel yükleyin. URL gerekmez. Yeni görsel seçilmezse mevcut görsel korunur.
+                    </p>
+                    <img data-medya-onizleme alt="Şube görsel önizleme" class="mt-4 hidden h-52 w-full rounded-[24px] border border-stone-200 bg-white object-cover" />
+                  </div>
+                  <div class="flex flex-col gap-3 sm:flex-row">
+                    <button id="dealer-form-submit" type="submit" class="flex-1 rounded-2xl bg-stone-900 px-5 py-4 text-sm font-bold text-white">Bayi Kaydını Kaydet</button>
+                    <button id="dealer-form-reset" type="button" class="rounded-2xl border border-stone-200 bg-white px-5 py-4 text-sm font-bold text-stone-700">Formu Temizle</button>
+                  </div>
+                  <p id="dealer-form-feedback" class="text-sm font-medium text-green-700"></p>
+                </form>
+              </article>
+
+              <article class="admin-card rounded-[32px] bg-white p-6">
+                <div>
+                  <p class="text-sm font-bold uppercase tracking-[0.24em] text-amber-700">Bayi Listesi</p>
+                  <h2 class="mt-2 text-2xl font-extrabold text-stone-900">Mevcut şubeler</h2>
+                </div>
+                <div id="dealer-list" class="mt-6 space-y-4"></div>
+              </article>
+            </div>
+          </section>
+
+          <section data-admin-panel="basvurular" class="admin-panel-view admin-card hidden rounded-[32px] bg-white p-6">
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p class="text-sm font-bold uppercase tracking-[0.24em] text-amber-700">Bayilik Başvuruları</p>
+                <h2 class="mt-2 text-2xl font-extrabold text-stone-900">Gelen franchise talepleri</h2>
+              </div>
+              <p class="text-sm leading-6 text-stone-500">Durum akışı: Yeni, İncelendi, İletişime Geçildi</p>
+            </div>
+
+            <div class="mt-6 overflow-x-auto">
+              <table class="min-w-full">
+                <thead>
+                  <tr class="border-b border-stone-200 text-left text-sm text-stone-500">
+                    <th class="px-4 py-3 font-semibold">Adı</th>
+                    <th class="px-4 py-3 font-semibold">Telefon</th>
+                    <th class="px-4 py-3 font-semibold">Şehir</th>
+                    <th class="px-4 py-3 font-semibold">Tarih</th>
+                    <th class="px-4 py-3 font-semibold">Durum</th>
+                    <th class="px-4 py-3 font-semibold">İşlem</th>
+                  </tr>
+                </thead>
+                <tbody id="application-table"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+      </div>
+    </main>
+
+    <script src="./assets/js/shared/pySyncClient.js?v=20260820-v5"></script>
+    <script type="module" src="./assets/js/admin.js?v=20260820-v5"></script>
+  </body>
+</html>

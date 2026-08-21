@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="Acılı Çiğköfte logosu">
+  <rect width="240" height="240" rx="48" fill="#FDFBF7"/>
+  <circle cx="120" cy="120" r="88" fill="#6B1818"/>
+  <circle cx="120" cy="120" r="62" fill="#F7F4EF"/>
+  <path d="M84 122c12-24 60-24 72 0-14 18-58 18-72 0Z" fill="#8B1E1E"/>
+  <path d="M94 101c8-12 44-12 52 0-10 8-42 8-52 0Z" fill="#D97706"/>
+  <text x="120" y="185" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700" fill="#6B1818">ACILI</text>
+</svg>

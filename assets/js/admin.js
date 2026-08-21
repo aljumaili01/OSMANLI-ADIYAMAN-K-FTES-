@@ -759,18 +759,19 @@ function buildPackagePayload(formData, packageId = null, sourceForm = null) {
     ? "video"
     : selectedMediaType;
 
+  const galleryStateKnown = sourceForm instanceof HTMLFormElement && __PKG_GALLERY_WEAK.has(sourceForm);
   let gallery = sourceForm instanceof HTMLFormElement
     ? getFormGalleryState(sourceForm)
     : Array.isArray(currentPackage && currentPackage.gallery) ? normalizeGallery(currentPackage.gallery) : [];
 
-  if (!gallery.length && currentPackage && currentPackage.media) {
+  if (!galleryStateKnown && !gallery.length && currentPackage && currentPackage.media) {
     gallery = normalizeGallery([{
       id: createImageId("pkg"),
       url: currentPackage.media,
       alt: String(currentPackage.title || ""),
     }]);
   }
-  if (!gallery.length && resolvedMedia) {
+  if (!galleryStateKnown && !gallery.length && resolvedMedia) {
     gallery = normalizeGallery([{
       id: createImageId("pkg"),
       url: resolvedMedia,
@@ -778,7 +779,9 @@ function buildPackagePayload(formData, packageId = null, sourceForm = null) {
     }]);
   }
 
-  let finalMedia = normalizeImagePath(resolvedMedia);
+  let finalMedia = galleryStateKnown
+    ? normalizeImagePath(gallery.length ? String(gallery[0].url || "") : "")
+    : normalizeImagePath(resolvedMedia);
   if (!finalMedia && gallery.length) {
     finalMedia = String(gallery[0].url || "");
   }
@@ -864,10 +867,12 @@ function syncFormGalleryToStateAndSave(formEl) {
   const pkgIndex = state.franchisePackages.findIndex(function (p) { return p && String(p.id) === String(targetPackageId); });
   if (pkgIndex < 0) return false;
   const currentPkg = state.franchisePackages[pkgIndex];
-  const currentMedia = String(currentPkg?.media || "");
-  let nextMedia = currentMedia;
-  if (!nextMedia && galleryNew.length) {
-    nextMedia = String(galleryNew[0]?.url || "");
+  // Galerinin ilk öğesi kapaktır. Son öğe de silindiyse eski kapak değerini
+  // korumak görseli yeniden diriltir; bu yüzden media alanını da boşalt.
+  const nextMedia = galleryNew.length ? String(galleryNew[0]?.url || "") : "";
+  const mediaField = formEl.elements ? formEl.elements.namedItem("media") : null;
+  if (mediaField && "value" in mediaField) {
+    try { mediaField.value = nextMedia; } catch (_) {}
   }
   let nextMediaType = currentPkg?.mediaType || "image";
   if (nextMedia) {

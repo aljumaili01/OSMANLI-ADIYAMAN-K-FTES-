@@ -12,8 +12,8 @@ import {
   getSiteContent,
   initializeData,
   initializeDataServerFirstIfPossible,
-} from "./shared/data.js?v=20260821-v15";
-import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260821-v15";
+} from "./shared/data.js?v=20260821-v16";
+import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260821-v16";
 const EXPECTED_BUILD = "20260821-v6";
 if (typeof CURRENT_DATA_VERSION === "string" && CURRENT_DATA_VERSION !== EXPECTED_BUILD) {
   try { window.location.reload(true); } catch (_) { try { location.href = location.href; } catch (__) {} }
@@ -192,11 +192,12 @@ function renderLayout() {
         <div class="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
           <nav class="glass-card flex items-center justify-between rounded-full border border-white/10 px-4 py-3 sm:px-6 sm:py-4">
             <a href="/index.html" class="flex items-center justify-center gap-3 self-center">
-              <span class="relative inline-flex h-14 min-h-[3.5rem] w-14 min-w-[3.5rem] shrink-0 items-center justify-center overflow-hidden rounded-full border border-red-100 bg-white shadow-sm">
+              <span class="relative inline-flex h-16 min-h-[4rem] w-16 min-w-[4rem] shrink-0 items-center justify-center overflow-hidden rounded-full border border-red-100 bg-white shadow-sm">
                 <img
                   src="${logoLocalPath}"
                   alt="${content.brandName} logosu"
-                  class="block h-full w-full rounded-full object-cover"
+                  class="block h-full w-full rounded-full object-cover object-center"
+                  style="transform: scale(1.35)"
                   loading="eager"
                   decoding="async"
                   referrerpolicy="no-referrer"
@@ -240,7 +241,8 @@ function renderLayout() {
                 <img
                   src="${logoLocalPath}"
                   alt="${content.brandName} logosu"
-                  class="block h-full w-full rounded-full object-cover"
+                  class="block h-full w-full rounded-full object-cover object-center"
+                  style="transform: scale(1.35)"
                   loading="lazy"
                   decoding="async"
                   referrerpolicy="no-referrer"

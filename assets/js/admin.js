@@ -176,6 +176,7 @@ function initializeAdminDashboard() {
       dashboardView: document.querySelector("#dashboard-view"),
       loginFeedback: document.querySelector("#login-feedback"),
       logoutButton: document.querySelector("#logout-button"),
+      adminBrandName: document.querySelector("#admin-brand-name"),
       totalProducts: document.querySelector("#total-products"),
       totalDealers: document.querySelector("#total-dealers"),
       totalApplications: document.querySelector("#total-applications"),
@@ -1702,6 +1703,7 @@ function renderSettingsForm() {
   if (!elements.settingsForm) return;
 
   const content = state.siteContent;
+  setTextContent(elements.adminBrandName, content.brandName || "Osmanlı Adıyaman Çiğköfte");
   const names = [
     "brandName",
     "slogan",

@@ -35,6 +35,11 @@ function _getPySyncClient() {
 }
 
 function _writeStorageKeyFromServerPayload(storageKey, payloadValue) {
+  // Sürüm anahtarı localStorage'da JSON değil düz metin tutulur. JSON.stringify
+  // uygulanırsa değer tırnaklı kalır ve admin/site sürüm kontrolü yenileme döngüsüne girer.
+  if (storageKey === STORAGE_KEYS.buildVersion && typeof payloadValue === "string") {
+    return !!safeStorageSet(STORAGE_KEYS.buildVersion, payloadValue);
+  }
   if (storageKey === STORAGE_KEYS.siteLogo && typeof payloadValue === "string") {
     try { storageWriteJson(STORAGE_KEYS.siteLogo, payloadValue); return true; } catch (_) { return false; }
   }

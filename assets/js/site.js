@@ -12,8 +12,8 @@ import {
   getSiteContent,
   initializeData,
   initializeDataServerFirstIfPossible,
-} from "./shared/data.js?v=20260821-v16";
-import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260821-v16";
+} from "./shared/data.js?v=20260821-v17";
+import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260821-v17";
 const EXPECTED_BUILD = "20260821-v6";
 if (typeof CURRENT_DATA_VERSION === "string" && CURRENT_DATA_VERSION !== EXPECTED_BUILD) {
   try { window.location.reload(true); } catch (_) { try { location.href = location.href; } catch (__) {} }
@@ -536,6 +536,20 @@ function renderDealersPage() {
                 </div>
               </div>
             </div>
+            <div class="border-t border-stone-200 bg-[#F7F4EF] p-3">
+              <div class="mb-3 flex items-center justify-between gap-3 px-1">
+                <p class="text-xs font-bold uppercase tracking-[0.18em] text-amber-700">Şube Konumu</p>
+                <a href="${escapeAttr(dealer.mapEmbedUrl || '#')}" target="_blank" rel="noreferrer" class="text-xs font-bold text-[#6B1818] hover:underline">Haritada Aç</a>
+              </div>
+              <iframe
+                src="${escapeAttr(resolveMapEmbedSrc(dealer.mapEmbedUrl))}"
+                title="${escapeAttr(dealer.branchName)} haritası"
+                class="h-64 w-full rounded-[22px] border border-stone-200 bg-white"
+                loading="lazy"
+                allowfullscreen
+                referrerpolicy="no-referrer-when-downgrade"
+              ></iframe>
+            </div>
           </article>
         `
       )
@@ -955,6 +969,23 @@ function resolveMapEmbedSrc(value) {
   if (iframeSrcMatch?.[2]) {
     return iframeSrcMatch[2].trim();
   }
+
+  try {
+    const url = new URL(trimmed, window.location.origin);
+    if (/google\.[^/]+$/i.test(url.hostname) || /(^|\.)google\.com$/i.test(url.hostname)) {
+      const coordinateMatch = decodeURIComponent(url.pathname).match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)(?:,([0-9.]+)z)?/);
+      if (coordinateMatch) {
+        const latitude = coordinateMatch[1];
+        const longitude = coordinateMatch[2];
+        const zoom = coordinateMatch[3] ? Math.max(1, Math.min(21, Math.round(Number(coordinateMatch[3])))) : 16;
+        return `https://www.google.com/maps?q=${encodeURIComponent(latitude + "," + longitude)}&z=${zoom}&output=embed`;
+      }
+      if (url.pathname.includes("/maps") && !url.searchParams.has("output")) {
+        url.searchParams.set("output", "embed");
+      }
+      return url.toString();
+    }
+  } catch (_) {}
 
   return trimmed;
 }

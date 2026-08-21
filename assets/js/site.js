@@ -12,8 +12,8 @@ import {
   getSiteContent,
   initializeData,
   initializeDataServerFirstIfPossible,
-} from "./shared/data.js?v=20260821-v7";
-import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260821-v7";
+} from "./shared/data.js?v=20260821-v13";
+import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260821-v13";
 const EXPECTED_BUILD = "20260821-v6";
 if (typeof CURRENT_DATA_VERSION === "string" && CURRENT_DATA_VERSION !== EXPECTED_BUILD) {
   try { window.location.reload(true); } catch (_) { try { location.href = location.href; } catch (__) {} }
@@ -178,6 +178,7 @@ function mainSiteRender() {
 
 function renderLayout() {
   const content = getSiteContent();
+  const home = { ...defaultSiteContent.homeText, ...(content.homeText || {}) };
   const logoLocalPath = "/images/logo.png";
   const header = document.querySelector("#site-header");
   const footer = document.querySelector("#site-footer");
@@ -203,19 +204,19 @@ function renderLayout() {
               </span>
               <div class="flex flex-col justify-center">
                 <p class="text-lg font-extrabold tracking-[0.12em] text-[#6B1818]">${content.brandName}</p>
-                <p class="text-xs uppercase tracking-[0.2em] text-stone-500">Kurumsal Lezzet Markası</p>
+                <p class="text-xs uppercase tracking-[0.2em] text-stone-500">${escapeHtml(home.headerSubtitle)}</p>
               </div>
             </a>
             <button id="mobile-menu-button" type="button" class="self-center rounded-full border border-stone-200 px-4 py-2 text-sm font-semibold text-[#6B1818] md:hidden">
-              Menü
+              ${escapeHtml(home.mobileMenu)}
             </button>
             <div class="hidden self-center items-center gap-6 text-sm font-medium md:flex">
-              ${navLinks()}
+              ${navLinks("", home)}
             </div>
           </nav>
           <div id="mobile-menu" class="hidden mt-4 rounded-3xl border border-white/10 bg-[#FDFBF7] p-4 text-sm md:hidden">
             <div class="flex flex-col gap-3">
-              ${navLinks("block rounded-2xl px-3 py-2 text-[#6B1818] hover:bg-[#F7F4EF]")}
+              ${navLinks("block rounded-2xl px-3 py-2 text-[#6B1818] hover:bg-[#F7F4EF]", home)}
             </div>
           </div>
         </div>
@@ -247,26 +248,24 @@ function renderLayout() {
               </span>
               <div>
                 <p class="text-lg font-extrabold tracking-[0.12em] text-[#6B1818]">${content.brandName}</p>
-                <p class="text-xs uppercase tracking-[0.2em] text-stone-500">Kurumsal Marka Kimliği</p>
+                <p class="text-xs uppercase tracking-[0.2em] text-stone-500">${escapeHtml(home.footerSubtitle)}</p>
               </div>
             </div>
             <p class="mt-4 text-sm leading-7 text-stone-600">
-              ${content.slogan}. Güçlü bayi yapısı, standart üretim ve sürdürülebilir kalite anlayışıyla hizmet veriyoruz.
+              ${escapeHtml(content.slogan)}. ${escapeHtml(home.footerDescription)}
             </p>
           </div>
           <div class="space-y-3 text-sm text-stone-600">
             <p class="font-semibold text-stone-900">${content.headquartersTitle}</p>
-            <p>Telefon: ${content.contactPhone}</p>
-            <p>E-posta: ${content.contactEmail}</p>
-            <p>Çalışma Saatleri: ${content.contactHours}</p>
+            <p>${escapeHtml(home.footerPhoneLabel)}: ${escapeHtml(content.contactPhone)}</p>
+            <p>${escapeHtml(home.footerEmailLabel)}: ${escapeHtml(content.contactEmail)}</p>
+            <p>${escapeHtml(home.footerHoursLabel)}: ${escapeHtml(content.contactHours)}</p>
             <p>${content.contactAddress}</p>
           </div>
           <div>
-            <p class="font-semibold text-stone-900">Kurumsal Bilgi Alanı</p>
+            <p class="font-semibold text-stone-900">${escapeHtml(home.footerInfoTitle)}</p>
             <div class="mt-3 rounded-[28px] border border-dashed border-stone-300 bg-[#FDFBF7] p-6 text-sm leading-7 text-stone-500">
-              Harita ve sosyal medya alanı
-              <br />
-              Instagram • Facebook • LinkedIn kurumsal hesapları
+              ${escapeHtml(home.footerInfoText).replaceAll("\n", "<br />")}
             </div>
           </div>
         </div>
@@ -280,6 +279,11 @@ function renderHome() {
   if (!heroTitle) return;
 
   const content = getSiteContent();
+  const home = { ...defaultSiteContent.homeText, ...(content.homeText || {}) };
+  document.querySelectorAll("[data-home-text]").forEach(function (element) {
+    const key = element.dataset.homeText;
+    if (key && typeof home[key] === "string") element.textContent = home[key];
+  });
   heroTitle.textContent = content.slogan;
   setText("#hero-description", content.heroDescription);
   setText("#brand-story-preview", content.heroCardSummaryText);
@@ -1355,14 +1359,14 @@ function renderMediaElement(mediaUrl, mediaType, altText, className = "") {
   `;
 }
 
-function navLinks(extraClass = "") {
+function navLinks(extraClass = "", homeText = {}) {
   const links = [
-    ["index.html", "Ana Sayfa"],
-    ["urunlerimiz.html", "Ürünlerimiz"],
-    ["hakkimizda.html", "Hakkımızda"],
-    ["bayilerimiz.html", "Bayilerimiz"],
-    ["bayilik-basvurusu.html", "Bayimiz Olun"],
-    ["iletisim.html", "İletişim"],
+    ["index.html", homeText.navHome || "Ana Sayfa"],
+    ["urunlerimiz.html", homeText.navProducts || "Ürünlerimiz"],
+    ["hakkimizda.html", homeText.navAbout || "Hakkımızda"],
+    ["bayilerimiz.html", homeText.navDealers || "Bayilerimiz"],
+    ["bayilik-basvurusu.html", homeText.navFranchise || "Bayimiz Olun"],
+    ["iletisim.html", homeText.navContact || "İletişim"],
   ];
 
   const inline = extraClass === "";
@@ -1375,7 +1379,7 @@ function navLinks(extraClass = "") {
       const __cp = currentPath || __extractCurrentPath();
       const isActive = __cp === href;
       const activeClass = isActive ? "font-bold text-[#6B1818]" : "text-stone-700";
-      return `<a href="/${href}" class="${inlineAlignClass} ${extraClass} ${activeClass}">${label}</a>`;
+      return `<a href="/${href}" class="${inlineAlignClass} ${extraClass} ${activeClass}">${escapeHtml(label)}</a>`;
     })
     .join("");
 }

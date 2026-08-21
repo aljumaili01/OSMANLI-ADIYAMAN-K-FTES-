@@ -3,6 +3,7 @@ import {
   categoryLabel,
   createFranchisePackage,
   createImageId,
+  defaultSiteContent,
   deleteApplication as persistDeleteApplication,
   deleteDealer as persistDeleteDealer,
   deleteFranchisePackage,
@@ -29,8 +30,8 @@ import {
   statusClassName,
   updateAdminPassword,
   updateFranchisePackage,
-} from "./shared/data.js?v=20260821-v12";
-import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260821-v12";
+} from "./shared/data.js?v=20260821-v13";
+import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260821-v13";
 const EXPECTED_BUILD_ADMIN = "20260821-v6";
 if (typeof CURRENT_DATA_VERSION === "string" && CURRENT_DATA_VERSION !== EXPECTED_BUILD_ADMIN) {
   try { window.location.reload(true); } catch (_) { location.href = location.href; }
@@ -97,6 +98,28 @@ function mainAdminInit() {
 
 const AUTH_FLAG_KEY = "isAdminLoggedIn";
 const ADMIN_TAB_KEY = "ckft_admin_active_tab";
+const HOME_TEXT_FIELDS = [
+  ["headerSubtitle", "Üst Menü Marka Alt Yazısı"], ["mobileMenu", "Mobil Menü Düğmesi"],
+  ["navHome", "Menü: Ana Sayfa"], ["navProducts", "Menü: Ürünlerimiz"], ["navAbout", "Menü: Hakkımızda"],
+  ["navDealers", "Menü: Bayilerimiz"], ["navFranchise", "Menü: Bayimiz Olun"], ["navContact", "Menü: İletişim"],
+  ["heroBadge", "Kapak Üst Etiketi"], ["heroProductsButton", "Kapak Ürünler Düğmesi"], ["heroFranchiseButton", "Kapak Bayilik Düğmesi"],
+  ["featuredEyebrow", "Öne Çıkan Ürünler Etiketi"], ["featuredTitle", "Öne Çıkan Ürünler Başlığı"], ["featuredLink", "Tüm Ürünler Bağlantısı"],
+  ["galleryEyebrow", "Galeri Etiketi"], ["galleryTitle", "Galeri Başlığı"],
+  ["dealersEyebrow", "Şubeler Etiketi"], ["dealersTitle", "Şubeler Başlığı"], ["dealersLink", "Tüm Şubeler Bağlantısı"],
+  ["aboutEyebrow", "Hakkımızda Etiketi"], ["qualityEyebrow", "Kalite Etiketi"],
+  ["qualityPill1", "Kalite Kısa Madde 1"], ["qualityPill2", "Kalite Kısa Madde 2"], ["qualityPill3", "Kalite Kısa Madde 3"],
+  ["qualityFeature1Title", "Kalite Kartı 1 Başlık"], ["qualityFeature1Text", "Kalite Kartı 1 Metin"],
+  ["qualityFeature2Title", "Kalite Kartı 2 Başlık"], ["qualityFeature2Text", "Kalite Kartı 2 Metin"],
+  ["qualityFeature3Title", "Kalite Kartı 3 Başlık"], ["qualityFeature3Text", "Kalite Kartı 3 Metin"],
+  ["franchiseEyebrow", "Bayilik Etiketi"], ["franchiseButton", "Bayilik Düğmesi"],
+  ["visionEyebrow", "Vizyon Bölüm Etiketi"], ["visionCardEyebrow", "Vizyon Kart Etiketi"], ["visionCardText", "Vizyon Kart Açıklaması", true],
+  ["visionBullet1", "Vizyon Kısa Madde 1"], ["visionBullet2", "Vizyon Kısa Madde 2"], ["visionBullet3", "Vizyon Kısa Madde 3"],
+  ["headquartersEyebrow", "Genel Müdürlük Etiketi"], ["headquartersTitle", "Harita Bölümü Başlığı"],
+  ["footerSubtitle", "Alt Bilgi Marka Alt Yazısı"], ["footerDescription", "Alt Bilgi Açıklaması", true],
+  ["footerPhoneLabel", "Alt Bilgi Telefon Etiketi"], ["footerEmailLabel", "Alt Bilgi E-posta Etiketi"], ["footerHoursLabel", "Alt Bilgi Saat Etiketi"],
+  ["footerInfoTitle", "Alt Bilgi Kurumsal Alan Başlığı"], ["footerInfoText", "Alt Bilgi Kurumsal Alan Metni", true],
+  ["whatsappTitle", "WhatsApp Üst Yazısı"], ["whatsappSubtitle", "WhatsApp Alt Yazısı"],
+];
 
 if (localStorage.getItem(AUTH_FLAG_KEY) !== "true") {
   window.location.replace("admin-login.html");
@@ -204,6 +227,9 @@ function initializeAdminDashboard() {
       pageTitlesFeedback: document.querySelector("#page-titles-feedback"),
       heroCardForm: document.querySelector("#hero-card-form"),
       heroCardFeedback: document.querySelector("#hero-card-feedback"),
+      homeTextForm: document.querySelector("#home-text-form"),
+      homeTextFields: document.querySelector("#home-text-fields"),
+      homeTextFeedback: document.querySelector("#home-text-feedback"),
       logoFeedback: document.querySelector("#logo-feedback"),
       foodImagesForm: document.querySelector("#food-images-form"),
       foodImagesFeedback: document.querySelector("#food-images-feedback"),
@@ -223,6 +249,7 @@ function initializeAdminDashboard() {
     try { elements.settingsForm?.addEventListener("submit", handleSettingsSave); } catch (e) { console.warn("[admin] settingsForm listener bağlanamadı:", e); }
     try { elements.pageTitlesForm?.addEventListener("submit", handlePageTitlesSave); } catch (e) { console.warn("[admin] pageTitlesForm listener bağlanamadı:", e); }
     try { elements.heroCardForm?.addEventListener("submit", handleHeroCardSave); } catch (e) { console.warn("[admin] heroCardForm listener bağlanamadı:", e); }
+    try { elements.homeTextForm?.addEventListener("submit", handleHomeTextSave); } catch (e) { console.warn("[admin] homeTextForm listener bağlanamadı:", e); }
     try { elements.foodImagesForm?.addEventListener("submit", handleFoodImagesSave); } catch (e) { console.warn("[admin] foodImagesForm listener bağlanamadı:", e); }
     try { elements.passwordForm?.addEventListener("submit", handlePasswordChange); } catch (e) { console.warn("[admin] passwordForm listener bağlanamadı:", e); }
     try { window.addEventListener("storage", syncState); } catch (e) { console.warn("[admin] storage listener bağlanamadı:", e); }
@@ -301,6 +328,7 @@ function renderDashboard() {
   try { renderSettingsForm(); } catch (e) { console.error("[admin] renderSettingsForm hatası:", e); }
   try { renderPageTitlesForm(); } catch (e) { console.error("[admin] renderPageTitlesForm hatası:", e); }
   try { renderHeroCardForm(); } catch (e) { console.error("[admin] renderHeroCardForm hatası:", e); }
+  try { renderHomeTextForm(); } catch (e) { console.error("[admin] renderHomeTextForm hatası:", e); }
   try { renderImageManagers(); } catch (e) { console.error("[admin] renderImageManagers hatası:", e); }
   try { bindMediaGroups(elements.productForm); } catch (e) { console.warn("[admin] productForm medya bağlama hatası:", e); }
   try { bindMediaGroups(elements.packageForm); } catch (e) { console.warn("[admin] packageForm medya bağlama hatası:", e); }
@@ -1820,6 +1848,42 @@ function renderHeroCardForm() {
       elements.heroCardForm.elements[name].value = content[name] ?? "";
     }
   });
+}
+
+function renderHomeTextForm() {
+  if (!elements.homeTextFields) return;
+  const values = { ...defaultSiteContent.homeText, ...((state.siteContent && state.siteContent.homeText) || {}) };
+  elements.homeTextFields.replaceChildren();
+  HOME_TEXT_FIELDS.forEach(([name, labelText, multiline]) => {
+    const wrapper = document.createElement("div");
+    if (multiline) wrapper.className = "lg:col-span-2";
+    const label = document.createElement("label");
+    label.className = "mb-2 block text-sm font-semibold text-stone-700";
+    label.htmlFor = `homeText-${name}`;
+    label.textContent = labelText;
+    const control = document.createElement(multiline ? "textarea" : "input");
+    control.id = `homeText-${name}`;
+    control.name = name;
+    if (multiline) control.rows = 3;
+    control.className = "w-full rounded-2xl border border-stone-200 bg-[#FDFBF7] px-4 py-3";
+    control.value = values[name] ?? "";
+    wrapper.append(label, control);
+    elements.homeTextFields.append(wrapper);
+  });
+}
+
+function handleHomeTextSave(event) {
+  event.preventDefault();
+  if (!elements.homeTextForm) return;
+  const formData = new FormData(elements.homeTextForm);
+  const homeText = {};
+  HOME_TEXT_FIELDS.forEach(([name]) => {
+    homeText[name] = formData.get(name)?.toString().trim() ?? "";
+  });
+  saveSiteContent({ homeText });
+  state.siteContent = getSiteContent();
+  setTextContent(elements.homeTextFeedback, "Ana sayfadaki bütün yazılar başarıyla kaydedildi.");
+  renderDashboard();
 }
 
 function initializeAdminTabs() {

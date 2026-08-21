@@ -123,6 +123,7 @@
             <button type="button" data-admin-tab="genel-ayarlar" class="admin-nav-link block w-full rounded-2xl px-4 py-3 text-left text-red-100/80">Genel Ayarlar</button>
             <button type="button" data-admin-tab="sayfa-basliklari" class="admin-nav-link block w-full rounded-2xl px-4 py-3 text-left text-red-100/80">Sayfa Başlıkları</button>
             <button type="button" data-admin-tab="ana-sayfa-sag-kart" class="admin-nav-link block w-full rounded-2xl px-4 py-3 text-left text-red-100/80">Ana Sayfa Sağ Kart</button>
+            <button type="button" data-admin-tab="ana-sayfa-metinleri" class="admin-nav-link block w-full rounded-2xl px-4 py-3 text-left text-red-100/80">Ana Sayfa Tüm Yazılar</button>
             <button type="button" data-admin-tab="sifre-degistirme" class="admin-nav-link block w-full rounded-2xl px-4 py-3 text-left text-red-100/80">Şifre Değiştirme</button>
             <button type="button" data-admin-tab="urun-yonetimi" class="admin-nav-link block w-full rounded-2xl px-4 py-3 text-left text-red-100/80">Ürün Yönetimi</button>
             <button type="button" data-admin-tab="bayilik-paketleri" class="admin-nav-link block w-full rounded-2xl px-4 py-3 text-left text-red-100/80">Bayilik Paketleri</button>
@@ -440,6 +441,19 @@
                 <button type="submit" class="w-full rounded-2xl bg-[#6B1818] px-5 py-4 text-sm font-bold text-white">Sağ Kartı Kaydet</button>
                 <p id="hero-card-feedback" class="mt-4 text-sm font-medium text-green-700"></p>
               </div>
+            </form>
+          </section>
+
+          <section data-admin-panel="ana-sayfa-metinleri" class="admin-panel-view admin-card hidden rounded-[32px] bg-white p-6">
+            <div>
+              <p class="text-sm font-bold uppercase tracking-[0.24em] text-amber-700">Tam Metin Yetkisi</p>
+              <h2 class="mt-2 text-2xl font-extrabold text-stone-900">Ana sayfadaki bütün sabit yazıları yönetin</h2>
+              <p class="mt-3 text-sm leading-7 text-stone-500">Menü, düğmeler, bölüm etiketleri, kalite kutuları, vizyon maddeleri, alt bilgi ve WhatsApp yazıları burada kaydedilir.</p>
+            </div>
+            <form id="home-text-form" class="mt-6 space-y-6">
+              <div id="home-text-fields" class="grid gap-4 lg:grid-cols-2"></div>
+              <button type="submit" class="rounded-2xl bg-[#7A1717] px-6 py-4 text-sm font-bold text-white">Bütün Ana Sayfa Yazılarını Kaydet</button>
+              <p id="home-text-feedback" class="text-sm font-medium text-green-700"></p>
             </form>
           </section>
 
@@ -873,6 +887,6 @@
     </main>
 
     <script src="/assets/js/shared/pySyncClient.js?v=20260821-v7"></script>
-    <script type="module" src="/assets/js/admin.js?v=20260821-v12"></script>
+    <script type="module" src="/assets/js/admin.js?v=20260821-v13"></script>
   </body>
 </html>

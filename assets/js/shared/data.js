@@ -726,6 +726,57 @@ export const defaultSiteContent = {
   mapPlaceholder: "Harita entegrasyonu ve konum modülü için ayrılmış alandır.",
   headquartersMapEmbedUrl:
     "https://www.google.com/maps?q=Cebeci%20Mahallesi%202537%20Sokak%20No%209%20Sultangazi%20Istanbul&output=embed",
+  homeText: {
+    headerSubtitle: "Kurumsal Lezzet Markası",
+    mobileMenu: "Menü",
+    navHome: "Ana Sayfa",
+    navProducts: "Ürünlerimiz",
+    navAbout: "Hakkımızda",
+    navDealers: "Bayilerimiz",
+    navFranchise: "Bayimiz Olun",
+    navContact: "İletişim",
+    heroBadge: "Otantik tarif, kurumsal kalite, güçlü bayi yapısı",
+    heroProductsButton: "Ürünlerimiz",
+    heroFranchiseButton: "Bayimiz Olun",
+    featuredEyebrow: "Öne Çıkan Lezzetler",
+    featuredTitle: "Markamızın dikkat çeken ürün seçkisi",
+    featuredLink: "Tüm ürünleri incele",
+    galleryEyebrow: "Lezzet Galerisi",
+    galleryTitle: "Yüklenen yemek görselleri",
+    dealersEyebrow: "Şubelerimiz",
+    dealersTitle: "Bayi noktalarımız ve konum bilgileri",
+    dealersLink: "Tüm şubeleri görüntüle",
+    aboutEyebrow: "Hakkımızda",
+    qualityEyebrow: "Kalite Anlayışımız",
+    qualityPill1: "Günlük Taze Üretim",
+    qualityPill2: "Hijyenik Hazırlık",
+    qualityPill3: "Memnuniyet Odaklı Hizmet",
+    qualityFeature1Title: "Kaliteli Hammadde",
+    qualityFeature1Text: "Üretimin her aşamasında özenle seçilmiş malzeme",
+    qualityFeature2Title: "Güvenli Üretim",
+    qualityFeature2Text: "Hijyen ve standartlara uygun hazırlık süreci",
+    qualityFeature3Title: "Müşteri Odaklılık",
+    qualityFeature3Text: "Her zaman en iyi deneyim için sürekli iyileştirme",
+    franchiseEyebrow: "Bayilik Fırsatı",
+    franchiseButton: "Bayimiz Olun",
+    visionEyebrow: "Kurumsal Yön",
+    visionCardEyebrow: "Vizyon & Büyüme",
+    visionCardText: "Markamız; sürdürülebilir üretim, dürüst iş ortaklığı ve müşteri odaklı hizmet anlayışı ile Türkiye genelinde güçlü bir bayilik ağı kurmayı hedeflemektedir.",
+    visionBullet1: "Şeffaf: Tüm süreçler öngörülebilir ve standart.",
+    visionBullet2: "Öğretici: Açılış, eğitim ve operasyon desteği.",
+    visionBullet3: "Birlikte Büyüme: Bayilerimizle ortak hedefler ve kazan-kazan.",
+    headquartersEyebrow: "Genel Müdürlük",
+    headquartersTitle: "Merkez konumumuz",
+    footerSubtitle: "Kurumsal Marka Kimliği",
+    footerDescription: "Güçlü bayi yapısı, standart üretim ve sürdürülebilir kalite anlayışıyla hizmet veriyoruz.",
+    footerPhoneLabel: "Telefon",
+    footerEmailLabel: "E-posta",
+    footerHoursLabel: "Çalışma Saatleri",
+    footerInfoTitle: "Kurumsal Bilgi Alanı",
+    footerInfoText: "Harita ve sosyal medya alanı\nInstagram • Facebook • LinkedIn kurumsal hesapları",
+    whatsappTitle: "WhatsApp",
+    whatsappSubtitle: "Destek",
+  },
   foodImages: defaultFoodImages,
   storeImages: defaultStoreImages,
 };
@@ -1187,7 +1238,11 @@ export function getSiteContent() {
   const hasAllKeys = stored &&
     typeof stored.brandName === "string" &&
     typeof stored.slogan === "string";
-  if (hasAllKeys && !storedHasBrokenCounters) return stored;
+  if (hasAllKeys && !storedHasBrokenCounters) return {
+    ...defaultSiteContent,
+    ...stored,
+    homeText: { ...defaultSiteContent.homeText, ...(stored.homeText || {}) },
+  };
   try {
     if (storedHasBrokenCounters) {
       const repaired = {
@@ -1208,7 +1263,11 @@ export function getSiteContent() {
     }
     seedIfMissing(STORAGE_KEYS.siteContent, defaultSiteContent);
   } catch (_) { /* ignore */ }
-  return { ...defaultSiteContent, ...(stored || {}) };
+  return {
+    ...defaultSiteContent,
+    ...(stored || {}),
+    homeText: { ...defaultSiteContent.homeText, ...((stored && stored.homeText) || {}) },
+  };
 }
 
 export function saveSiteContent(content) {
@@ -1217,6 +1276,11 @@ export function saveSiteContent(content) {
     ...defaultSiteContent,
     ...currentContent,
     ...content,
+    homeText: {
+      ...defaultSiteContent.homeText,
+      ...(currentContent.homeText || {}),
+      ...((content && content.homeText) || {}),
+    },
   };
   _pySyncWriteBestEffort("site_content", next);
   return storageWriteJson(

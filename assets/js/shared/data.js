@@ -686,10 +686,10 @@ export const defaultSiteContent = {
   franchiseImageAlt: "Anahtar teslim bayilik iş ortaklığını temsil eden kurumsal şube fotoğrafı",
   journeyTitle: "Lezzet Yolculuğumuz (2012 - Bugün)",
   journeyText:
-    "2012 yılında Konya şehrinde ortaklık ile adım attığımız çiğköfte sektörü yolculuğumuza, 2015 yılından itibaren aile şirketi olarak devam etme kararı aldık. Bu işe ilk başladığımız günden bu yana üretimimizi tamamen kendimiz yapıyor, her gün taze ve hijyenik koşullarda hazırlıyoruz.",
+    "2012 yılında Konya'da bir ortaklıkla başladığımız çiğköfte sektörü yolculuğumuza, 2015 yılından itibaren aile şirketi olarak devam etme kararı aldık. Bu işe ilk başladığımız günden bu yana üretimimizi tamamen kendimiz yapıyor, ürünlerimizi her gün taze ve hijyenik koşullarda hazırlıyoruz.",
   qualityTitle: "Kalite ve Müşteri Memnuniyeti Önceliğimizdir",
   qualityText:
-    "İlk 3 yıl boyunca sürekli yeni tarifler deneyerek, bugünkü eşsiz lezzetimize ve yüksek kalitemize ulaştık. Üretim sürecimizde her zaman en üst kalite malzemeler kullandık. Bizim için en büyük öncelik her zaman müşteri memnuniyeti oldu; müşterilerimizi memnun etmek ve onlara en iyisini sunmak için her gün yeni yollar denedik. Bugünlere gelene kadar büyük bir emek ve özveriyle çalıştık.",
+    "İlk üç yıl boyunca sürekli yeni tarifler deneyerek bugünkü eşsiz lezzetimize ve yüksek kalite standardımıza ulaştık. Üretim sürecimizde her zaman en kaliteli malzemeleri kullandık. En büyük önceliğimiz daima müşteri memnuniyeti oldu; müşterilerimize en iyisini sunmak için her gün yeni yöntemler geliştirdik. Bugüne kadar büyük bir emek ve özveriyle çalıştık.",
   franchiseTitle: "Anahtar Teslim Bayilik Fırsatları",
   franchiseSlogan: "Dükkanı tut, her şeyi bize bırak",
   franchiseText:
@@ -712,9 +712,9 @@ export const defaultSiteContent = {
   whyUsText3:
     "Uzun vadeli iş ortaklığı anlayışı ile büyümeyi hedefleyen profesyonel bayilik yaklaşımı.",
   aboutStory:
-    "2012 yılında Konya şehrinde ortaklık ile adım attığımız çiğköfte sektörü yolculuğumuza, 2015 yılından itibaren aile şirketi olarak devam etme kararı aldık. Bu işe ilk başladığımız günden bu yana üretimimizi tamamen kendimiz yapıyoruz.",
+    "2012 yılında Konya'da bir ortaklıkla başladığımız çiğköfte sektörü yolculuğumuza, 2015 yılından itibaren aile şirketi olarak devam etme kararı aldık. Bu işe ilk başladığımız günden bu yana üretimimizi tamamen kendimiz yapıyoruz.",
   aboutQuality:
-    "İlk 3 yıl boyunca sürekli yeni tarifler deneyerek, bugünkü eşsiz lezzetimize ve yüksek kalitemize ulaştık. Üretim sürecimizde her zaman en üst kalite malzemeler kullandık. Bizim için en büyük öncelik her zaman müşteri memnuniyeti oldu.",
+    "İlk üç yıl boyunca sürekli yeni tarifler deneyerek bugünkü eşsiz lezzetimize ve yüksek kalite standardımıza ulaştık. Üretim sürecimizde her zaman en kaliteli malzemeleri kullandık. En büyük önceliğimiz daima müşteri memnuniyeti oldu.",
   aboutVision:
     "Geleneksel lezzeti geleceğe taşımak, sektörde güvenilir lider olmak ve büyüyen bayilik ağımızla Türkiye'nin dört bir yanında aynı kaliteyi sunmak temel vizyonumuzdur.",
   contactPhone: "+90 850 555 00 00",
@@ -751,7 +751,7 @@ export const defaultSiteContent = {
     qualityPill1: "Günlük Taze Üretim",
     qualityPill2: "Hijyenik Hazırlık",
     qualityPill3: "Memnuniyet Odaklı Hizmet",
-    qualityFeature1Title: "Kaliteli Hammadde",
+    qualityFeature1Title: "Kaliteli Ham Madde",
     qualityFeature1Text: "Üretimin her aşamasında özenle seçilmiş malzeme",
     qualityFeature2Title: "Güvenli Üretim",
     qualityFeature2Text: "Hijyen ve standartlara uygun hazırlık süreci",
@@ -1216,8 +1216,40 @@ export function createApplication(payload) {
   return nextItem;
 }
 
+function correctKnownTurkishTypos(content) {
+  if (!content || typeof content !== "object") return content;
+  const corrected = { ...content };
+  const replacements = {
+    journeyText: [
+      "2012 yılında Konya şehrinde ortaklık ile adım attığımız çiğköfte sektörü yolculuğumuza, 2015 yılından itibaren aile şirketi olarak devam etme kararı aldık. Bu işe ilk başladığımız günden bu yana üretimimizi tamamen kendimiz yapıyor, her gün taze ve hijyenik koşullarda hazırlıyoruz.",
+      defaultSiteContent.journeyText,
+    ],
+    aboutStory: [
+      "2012 yılında Konya şehrinde ortaklık ile adım attığımız çiğköfte sektörü yolculuğumuza, 2015 yılından itibaren aile şirketi olarak devam etme kararı aldık. Bu işe ilk başladığımız günden bu yana üretimimizi tamamen kendimiz yapıyoruz.",
+      defaultSiteContent.aboutStory,
+    ],
+    qualityText: [
+      "İlk 3 yıl boyunca sürekli yeni tarifler deneyerek, bugünkü eşsiz lezzetimize ve yüksek kalitemize ulaştık. Üretim sürecimizde her zaman en üst kalite malzemeler kullandık. Bizim için en büyük öncelik her zaman müşteri memnuniyeti oldu; müşterilerimizi memnun etmek ve onlara en iyisini sunmak için her gün yeni yollar denedik. Bugünlere gelene kadar büyük bir emek ve özveriyle çalıştık.",
+      defaultSiteContent.qualityText,
+    ],
+    aboutQuality: [
+      "İlk 3 yıl boyunca sürekli yeni tarifler deneyerek, bugünkü eşsiz lezzetimize ve yüksek kalitemize ulaştık. Üretim sürecimizde her zaman en üst kalite malzemeler kullandık. Bizim için en büyük öncelik her zaman müşteri memnuniyeti oldu.",
+      defaultSiteContent.aboutQuality,
+    ],
+  };
+  Object.entries(replacements).forEach(([key, pair]) => {
+    if (corrected[key] === pair[0]) corrected[key] = pair[1];
+  });
+  corrected.homeText = { ...defaultSiteContent.homeText, ...(corrected.homeText || {}) };
+  if (corrected.homeText.qualityFeature1Title === "Kaliteli Hammadde") {
+    corrected.homeText.qualityFeature1Title = "Kaliteli Ham Madde";
+  }
+  return corrected;
+}
+
 export function getSiteContent() {
   let stored = storageReadObject(STORAGE_KEYS.siteContent, defaultSiteContent);
+  stored = correctKnownTurkishTypos(stored);
   // Önceki marka adları tarayıcı hafızasında kalmışsa yeni resmi ada bir kez taşı.
   if (stored && ["Acılı Çiğköfte", "Adıyaman Osmanlı Çiğköfte"].includes(String(stored.brandName || "").trim())) {
     stored = { ...stored, brandName: defaultSiteContent.brandName };
@@ -1238,11 +1270,11 @@ export function getSiteContent() {
   const hasAllKeys = stored &&
     typeof stored.brandName === "string" &&
     typeof stored.slogan === "string";
-  if (hasAllKeys && !storedHasBrokenCounters) return {
+  if (hasAllKeys && !storedHasBrokenCounters) return correctKnownTurkishTypos({
     ...defaultSiteContent,
     ...stored,
     homeText: { ...defaultSiteContent.homeText, ...(stored.homeText || {}) },
-  };
+  });
   try {
     if (storedHasBrokenCounters) {
       const repaired = {
@@ -1263,11 +1295,11 @@ export function getSiteContent() {
     }
     seedIfMissing(STORAGE_KEYS.siteContent, defaultSiteContent);
   } catch (_) { /* ignore */ }
-  return {
+  return correctKnownTurkishTypos({
     ...defaultSiteContent,
     ...(stored || {}),
     homeText: { ...defaultSiteContent.homeText, ...((stored && stored.homeText) || {}) },
-  };
+  });
 }
 
 export function saveSiteContent(content) {

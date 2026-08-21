@@ -30,8 +30,8 @@ import {
   statusClassName,
   updateAdminPassword,
   updateFranchisePackage,
-} from "./shared/data.js?v=20260821-v13";
-import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260821-v13";
+} from "./shared/data.js?v=20260821-v14";
+import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260821-v14";
 const EXPECTED_BUILD_ADMIN = "20260821-v6";
 if (typeof CURRENT_DATA_VERSION === "string" && CURRENT_DATA_VERSION !== EXPECTED_BUILD_ADMIN) {
   try { window.location.reload(true); } catch (_) { location.href = location.href; }
@@ -1043,7 +1043,7 @@ function bindGalleryScope(scopeEl, initialItems) {
           const id = delBtn.getAttribute("data-galeri-sil");
           if (!id) return;
           const label = "Seçili görsel / video";
-          const onay = window.confirm("⚠️ " + label + " galeriden KALICI olarak silinsin mi?\nBu işlem GERİ ALINAMAZ. Silinen görsel sayfa yenilemede geri gelmeyecektir.");
+          const onay = window.confirm("⚠️ " + label + " galeriden KALICI olarak silinsin mi?\nBu işlem GERİ ALINAMAZ. Silinen görsel, sayfa yenilendiğinde geri gelmeyecektir.");
           if (!onay) return;
           const arr = getFormGalleryState(formCtx).filter(function (x) { return x.id !== id; });
           setFormGalleryState(formCtx, arr);
@@ -1497,7 +1497,7 @@ function handleInlineDealerSave(event) {
     if (feedbackEl) {
       feedbackEl.classList.remove("text-green-700");
       feedbackEl.classList.add("text-red-700");
-      feedbackEl.textContent = "Lütfen şehir, ilçe, şube adı, adres, telefon ve Google Maps URL alanlarını boş bırakmayınız.";
+      feedbackEl.textContent = "Lütfen şehir, ilçe, şube adı, adres, telefon ve Google Maps bağlantısı alanlarını doldurunuz.";
     } else {
       alert("Lütfen zorunlu alanları doldurunuz: şehir, ilçe, şube adı, adres, telefon, harita URL.");
     }
@@ -1582,7 +1582,7 @@ function handleDealerSave(event) {
   ) {
     setTextContent(
       elements.dealerFormFeedback,
-      "Lütfen şehir, ilçe, şube adı, adres, iletişim ve Google Maps gömme alanlarını doldurunuz. Şube görseli isteğe bağlıdır."
+      "Lütfen şehir, ilçe, şube adı, adres, iletişim ve Google Maps yerleştirme bağlantısı alanlarını doldurunuz. Şube görseli isteğe bağlıdır."
     );
     return;
   }

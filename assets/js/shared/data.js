@@ -435,7 +435,7 @@ export const defaultDealers = [
     id: "istanbul-bagcilar",
     city: "İstanbul",
     district: "Bağcılar",
-    branchName: "Acılı Çiğköfte Bağcılar Merkez",
+    branchName: "Adıyaman Osmanlı Çiğköfte",
     address: "Merkez Mahallesi İnönü Caddesi No:24, Bağcılar / İstanbul",
     phone: "+90 212 555 10 10",
     image: "./images/Usta Durumu.jpg",
@@ -448,7 +448,7 @@ export const defaultDealers = [
     id: "ankara-kecioren",
     city: "Ankara",
     district: "Keçiören",
-    branchName: "Acılı Çiğköfte Keçiören",
+    branchName: "Adıyaman Osmanlı Çiğköfte",
     address: "Güzeltepe Mahallesi Şehitler Sokak No:11, Keçiören / Ankara",
     phone: "+90 312 555 20 20",
     image: "./images/Mega Durum.jpg",
@@ -461,7 +461,7 @@ export const defaultDealers = [
     id: "izmir-bornova",
     city: "İzmir",
     district: "Bornova",
-    branchName: "Acılı Çiğköfte Bornova Forum",
+    branchName: "Adıyaman Osmanlı Çiğköfte",
     address: "Kazımdirik Mahallesi 372 Sokak No:8, Bornova / İzmir",
     phone: "+90 232 555 30 30",
     image: "./images/Klasik Porsiyon çiğ köfte.png",
@@ -474,7 +474,7 @@ export const defaultDealers = [
     id: "gaziantep-sehitkamil",
     city: "Gaziantep",
     district: "Şehitkamil",
-    branchName: "Acılı Çiğköfte Şehitkamil",
+    branchName: "Adıyaman Osmanlı Çiğköfte",
     address: "Mücahitler Mahallesi 52012 Nolu Sokak No:4, Şehitkamil / Gaziantep",
     phone: "+90 342 555 40 40",
     image: "./images/Geleneksel Etsiz Çiğköfte.jpg",
@@ -1144,27 +1144,46 @@ export function deleteProduct(productId) {
   return saveProducts(next);
 }
 
+const STANDARD_DEALER_NAME = "Adıyaman Osmanlı Çiğköfte";
+
+function normalizeDealerNames(dealers) {
+  if (!Array.isArray(dealers)) return [];
+  return dealers.map(function (dealer) {
+    return dealer && dealer.branchName !== STANDARD_DEALER_NAME
+      ? { ...dealer, branchName: STANDARD_DEALER_NAME }
+      : dealer;
+  });
+}
+
 export function getDealers() {
   const raw = safeStorageGet(STORAGE_KEYS.dealers, null);
   if (raw !== null) {
     const fromStorage = storageReadCollection(STORAGE_KEYS.dealers, defaultDealers);
-    if (Array.isArray(fromStorage) && fromStorage.length > 0) return fromStorage;
+    if (Array.isArray(fromStorage) && fromStorage.length > 0) {
+      const normalized = normalizeDealerNames(fromStorage);
+      if (normalized.some((dealer, index) => dealer !== fromStorage[index])) {
+        try { storageWriteJson(STORAGE_KEYS.dealers, normalized); } catch (_) {}
+        _pySyncWriteBestEffort("dealers", normalized);
+      }
+      return normalized;
+    }
     if (Array.isArray(fromStorage)) {
       const buildCheck = safeStorageGet(STORAGE_KEYS.buildVersion, null);
       if (buildCheck === null) {
         try { seedIfMissing(STORAGE_KEYS.dealers, defaultDealers); } catch (_) {}
-        return Array.isArray(defaultDealers) ? defaultDealers.slice() : [];
+        return normalizeDealerNames(defaultDealers);
       }
       return fromStorage;
     }
   }
   try { seedIfMissing(STORAGE_KEYS.dealers, defaultDealers); } catch (_) { /* ignore */ }
-  return Array.isArray(defaultDealers) ? defaultDealers.slice() : [];
+  return normalizeDealerNames(defaultDealers);
 }
 
 export function saveDealers(dealers) {
-  _pySyncWriteBestEffort("dealers", dealers);
-  return storageWriteJson(STORAGE_KEYS.dealers, dealers);
+  const normalized = normalizeDealerNames(dealers);
+  _pySyncWriteBestEffort("dealers", normalized);
+  return storageWriteJson(STORAGE_KEYS.dealers, normalized);
 }
 
 export function deleteDealer(dealerId) {

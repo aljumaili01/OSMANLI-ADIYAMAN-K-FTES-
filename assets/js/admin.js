@@ -30,8 +30,8 @@ import {
   statusClassName,
   updateAdminPassword,
   updateFranchisePackage,
-} from "./shared/data.js?v=20260822-v22";
-import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260822-v22";
+} from "./shared/data.js?v=20260822-v23";
+import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260822-v23";
 const EXPECTED_BUILD_ADMIN = "20260821-v6";
 if (typeof CURRENT_DATA_VERSION === "string" && CURRENT_DATA_VERSION !== EXPECTED_BUILD_ADMIN) {
   try { window.location.reload(true); } catch (_) { location.href = location.href; }
@@ -1276,7 +1276,7 @@ function renderDealers() {
         "</span>" +
         "<div>" +
           "<p class=\"text-sm font-bold text-stone-900\">Bayi kayıtları otomatik kalıcıdır</p>" +
-          "<p class=\"text-xs leading-6 text-stone-500\">Düzenle, Sil veya Yeni Bayi Ekle yaptığınız anda değişiklikler tarayıcınızda localStorage üzerine yazılır ve sayfa yenilemelerinde korunur.</p>" +
+          "<p class=\"text-xs leading-6 text-stone-500\">Düzenleme, silme ve yeni bayi ekleme işlemleri güvenli yönetici oturumuyla Supabase veritabanına kalıcı olarak kaydedilir.</p>" +
         "</div>" +
       "</div>" +
       "<button type=\"button\" data-bayi-liste-kayit-kontrol class=\"rounded-2xl bg-stone-900 px-4 py-3 text-sm font-bold text-white\">Kayıtlı Bayileri Doğrula</button>" +
@@ -1560,13 +1560,15 @@ function handleDealerSave(event) {
     formData.get("mapEmbedUrl")?.toString().trim() ?? ""
   );
   const payload = {
-    id:
-      state.editingDealerId ||
+    id: state.editingDealerId || [
       slugify(
         `${formData.get("city")?.toString() ?? ""} ${
           formData.get("district")?.toString() ?? ""
         } ${formData.get("branchName")?.toString() ?? ""}`
-      ),
+      ) || "bayi",
+      Date.now().toString(36),
+      Math.random().toString(36).slice(2, 7),
+    ].join("-"),
     city: formData.get("city")?.toString().trim() ?? "",
     district: formData.get("district")?.toString().trim() ?? "",
     branchName: formData.get("branchName")?.toString().trim() ?? "",

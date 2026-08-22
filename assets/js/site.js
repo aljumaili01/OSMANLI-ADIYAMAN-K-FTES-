@@ -12,8 +12,8 @@ import {
   getSiteContent,
   initializeData,
   initializeDataServerFirstIfPossible,
-} from "./shared/data.js?v=20260822-v22";
-import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260822-v22";
+} from "./shared/data.js?v=20260822-v23";
+import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260822-v23";
 const EXPECTED_BUILD = "20260821-v6";
 if (typeof CURRENT_DATA_VERSION === "string" && CURRENT_DATA_VERSION !== EXPECTED_BUILD) {
   try { window.location.reload(true); } catch (_) { try { location.href = location.href; } catch (__) {} }
@@ -562,15 +562,22 @@ function renderDealersPage() {
 
     const remainingCards = dealerCards.slice(2);
     if (remainingCards.length) {
-      const appendRemaining = function () {
-        if (dealerList.dataset.renderToken !== renderToken) return;
-        dealerList.insertAdjacentHTML("beforeend", remainingCards.join(""));
+      let nextCardIndex = 0;
+      const scheduleNextBatch = function () {
+        if (typeof window.requestIdleCallback === "function") {
+          window.requestIdleCallback(appendNextBatch, { timeout: 350 });
+        } else {
+          window.setTimeout(appendNextBatch, 80);
+        }
       };
-      if (typeof window.requestIdleCallback === "function") {
-        window.requestIdleCallback(appendRemaining, { timeout: 350 });
-      } else {
-        window.setTimeout(appendRemaining, 80);
-      }
+      const appendNextBatch = function () {
+        if (dealerList.dataset.renderToken !== renderToken) return;
+        const batch = remainingCards.slice(nextCardIndex, nextCardIndex + 4);
+        dealerList.insertAdjacentHTML("beforeend", batch.join(""));
+        nextCardIndex += batch.length;
+        if (nextCardIndex < remainingCards.length) scheduleNextBatch();
+      };
+      scheduleNextBatch();
     }
 
     if (!dealers.length) {

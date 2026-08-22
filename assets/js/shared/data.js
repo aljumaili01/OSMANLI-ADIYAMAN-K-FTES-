@@ -1157,9 +1157,18 @@ export function deleteProduct(productId) {
 
 const STANDARD_DEALER_NAME = "Adıyaman Osmanlı Çiğköfte";
 
+const DEMO_DEALER_IDS = new Set([
+  "istanbul-bagcilar",
+  "ankara-kecioren",
+  "izmir-bornova",
+  "gaziantep-sehitkamil",
+]);
+
 function normalizeDealerNames(dealers) {
   if (!Array.isArray(dealers)) return [];
-  return dealers.map(function (dealer) {
+  return dealers.filter(function (dealer) {
+    return dealer && !DEMO_DEALER_IDS.has(String(dealer.id || ""));
+  }).map(function (dealer) {
     return dealer && dealer.branchName !== STANDARD_DEALER_NAME
       ? { ...dealer, branchName: STANDARD_DEALER_NAME }
       : dealer;
@@ -1192,7 +1201,10 @@ export function getDealers() {
     const fromStorage = storageReadCollection(STORAGE_KEYS.dealers, defaultDealers);
     if (Array.isArray(fromStorage) && fromStorage.length > 0) {
       const normalized = normalizeDealerNames(fromStorage);
-      if (normalized.some((dealer, index) => dealer !== fromStorage[index])) {
+      if (
+        normalized.length !== fromStorage.length ||
+        normalized.some((dealer, index) => dealer !== fromStorage[index])
+      ) {
         try { storageWriteJson(STORAGE_KEYS.dealers, normalized); } catch (_) {}
       }
       return normalized;
@@ -1206,8 +1218,9 @@ export function getDealers() {
       return fromStorage;
     }
   }
-  try { seedIfMissing(STORAGE_KEYS.dealers, defaultDealers); } catch (_) { /* ignore */ }
-  return normalizeDealerNames(defaultDealers);
+  // Sunucuya ulaşılamadığında sahte/örnek şubeler göstermeyiz. Gerçek bayi
+  // verisi gelene kadar boş liste kullanılır.
+  return [];
 }
 
 export function saveDealers(dealers) {

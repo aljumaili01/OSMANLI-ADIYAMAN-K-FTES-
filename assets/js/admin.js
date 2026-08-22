@@ -21,6 +21,7 @@ import {
   initializeDataServerFirstIfPossible,
   saveApplications,
   saveDealers,
+  saveDealersConfirmed,
   saveFranchisePackages,
   savePageTitles,
   saveProducts,
@@ -30,8 +31,8 @@ import {
   statusClassName,
   updateAdminPassword,
   updateFranchisePackage,
-} from "./shared/data.js?v=20260822-v23";
-import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260822-v23";
+} from "./shared/data.js?v=20260822-v24";
+import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260822-v24";
 const EXPECTED_BUILD_ADMIN = "20260821-v6";
 if (typeof CURRENT_DATA_VERSION === "string" && CURRENT_DATA_VERSION !== EXPECTED_BUILD_ADMIN) {
   try { window.location.reload(true); } catch (_) { location.href = location.href; }
@@ -1479,7 +1480,7 @@ function renderDealers() {
   } catch (_) {}
 }
 
-function handleInlineDealerSave(event) {
+async function handleInlineDealerSave(event) {
   event.preventDefault();
   const formEl = event.currentTarget;
   if (!formEl) return;
@@ -1523,17 +1524,20 @@ function handleInlineDealerSave(event) {
     active: active,
   };
   state.dealers[dealerIndex] = next;
-  const writeOk = saveDealers(state.dealers);
+  const savePromise = saveDealersConfirmed(state.dealers);
   state.editingInlineDealerId = null;
-  if (feedbackEl) {
-    feedbackEl.classList.remove("text-red-700");
-    feedbackEl.classList.add("text-green-700");
-    feedbackEl.textContent = writeOk ? "✅ Bayi kaydı başarıyla güncellendi ve kalıcı olarak kaydedildi." : "⚠️ Bayi güncellendi ancak depolama alanı dolu olduğu için kalıcı yazılamayabilir.";
-  }
   renderDashboard();
+  setTextContent(elements.dealerFormFeedback, "Bayi ekranda güncellendi; veritabanına kaydediliyor…");
+  const result = await savePromise;
+  setTextContent(
+    elements.dealerFormFeedback,
+    result && result.ok
+      ? "Bayi güncellendi ve veritabanına kalıcı olarak kaydedildi."
+      : "Bayi ekranda güncellendi ancak veritabanına kaydedilemedi. Lütfen yeniden giriş yapıp tekrar deneyin."
+  );
 }
 
-function handleDealerSave(event) {
+async function handleDealerSave(event) {
   event.preventDefault();
   if (!elements.dealerForm) return;
 
@@ -1603,14 +1607,16 @@ function handleDealerSave(event) {
     state.dealers = [{ ...payload }, ...state.dealers];
   }
 
-  const ok = saveDealers(state.dealers);
+  const savePromise = saveDealersConfirmed(state.dealers);
   resetDealerForm();
   renderDashboard();
+  setTextContent(elements.dealerFormFeedback, "Bayi sitede hemen gösterildi; veritabanına kaydediliyor…");
+  const result = await savePromise;
   setTextContent(
     elements.dealerFormFeedback,
-    ok
-      ? "Bayi kaydı başarıyla kaydedildi ve kalıcı hale getirildi."
-      : "Bayi kaydı hazırlandı ancak depolama kotası nedeniyle kalıcı yazılamayabilir."
+    result && result.ok
+      ? "Bayi kaydı veritabanına kaydedildi ve yayına hazır."
+      : "Bayi bu tarayıcıda görünüyor ancak veritabanına kaydedilemedi. Lütfen çıkış yapıp yeniden giriş yaparak tekrar deneyin."
   );
 }
 

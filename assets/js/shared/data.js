@@ -1196,6 +1196,38 @@ export function saveDealers(dealers) {
   return storageWriteJson(STORAGE_KEYS.dealers, normalized);
 }
 
+/**
+ * Bayi listesini önce tarayıcıya anında yazar, ardından kalıcı sunucu
+ * kaydının sonucunu bekler. Admin paneli böylece kullanıcıya gecikmeden
+ * güncellenirken başarısız bir Supabase yazımını da başarılı göstermemiş olur.
+ */
+export async function saveDealersConfirmed(dealers) {
+  const normalized = normalizeDealerNames(Array.isArray(dealers) ? dealers : []);
+  const localOk = storageWriteJson(STORAGE_KEYS.dealers, normalized);
+  const sync = _getPySyncClient();
+  if (!sync || typeof sync.writeTable !== "function") {
+    return { ok: false, localOk: localOk, serverOk: false, offline: true, status: 0 };
+  }
+  try {
+    const result = await sync.writeTable("dealers", normalized);
+    return {
+      ...(result && typeof result === "object" ? result : {}),
+      ok: Boolean(result && result.ok),
+      localOk: localOk,
+      serverOk: Boolean(result && result.ok),
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      localOk: localOk,
+      serverOk: false,
+      offline: true,
+      status: 0,
+      error: error && error.message ? error.message : String(error),
+    };
+  }
+}
+
 export function deleteDealer(dealerId) {
   if (!dealerId) return false;
   const dealers = getDealers();

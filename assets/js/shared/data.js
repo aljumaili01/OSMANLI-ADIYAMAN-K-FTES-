@@ -1031,17 +1031,28 @@ export function getFranchisePackages() {
   if (raw !== null) {
     const fromStorage = storageReadCollection(STORAGE_KEYS.franchisePackages, defaultFranchisePackages);
     if (Array.isArray(fromStorage)) {
-      return fromStorage.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      return normalizePackageVisibility(fromStorage).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
     }
   }
   try { seedIfMissing(STORAGE_KEYS.franchisePackages, defaultFranchisePackages); } catch (_) { /* ignore */ }
-  const out = Array.isArray(defaultFranchisePackages) ? defaultFranchisePackages.slice() : [];
+  const out = Array.isArray(defaultFranchisePackages) ? normalizePackageVisibility(defaultFranchisePackages) : [];
   return out.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 }
 
+function normalizePackageVisibility(packages) {
+  return packages.map(function (pkg) {
+    if (!pkg || typeof pkg !== "object") return pkg;
+    if (!Object.prototype.hasOwnProperty.call(pkg, "active")) return { ...pkg, active: true };
+    const value = pkg.active;
+    const active = value === true || value === 1 || value === "1" || value === "true" || value === "on";
+    return active === value ? pkg : { ...pkg, active };
+  });
+}
+
 export function saveFranchisePackages(packages) {
-  _pySyncWriteBestEffort("franchise_packages", packages);
-  return storageWriteJson(STORAGE_KEYS.franchisePackages, packages, {
+  const normalized = normalizePackageVisibility(Array.isArray(packages) ? packages : []);
+  _pySyncWriteBestEffort("franchise_packages", normalized);
+  return storageWriteJson(STORAGE_KEYS.franchisePackages, normalized, {
     onError: function () {
       console.error("[storage] Bayilik paketleri kaydedilemedi (kota dolu).");
     }

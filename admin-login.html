@@ -109,10 +109,10 @@
       </div>
     </main>
 
-    <script src="/assets/js/shared/pySyncClient.js?v=20260821-v7"></script>
+    <script src="/assets/js/shared/pySyncClient.js?v=20260822-v21"></script>
     <script>
       (function () {
-        function finalLoginSubmit(event) {
+        async function finalLoginSubmit(event) {
           if (event && typeof event.preventDefault === "function") {
             try { event.preventDefault(); } catch (e1) {}
             try { event.stopPropagation(); } catch (e2) {}
@@ -143,8 +143,16 @@
               if (window.PySyncClient && typeof window.PySyncClient.bootstrapSecretFromWindow === "function") {
                 window.PySyncClient.bootstrapSecretFromWindow();
               }
-              if (window.PySyncClient && typeof window.PySyncClient.onAdminAuthenticated === "function") {
-                window.PySyncClient.onAdminAuthenticated(password);
+              if (window.PySyncClient && typeof window.PySyncClient.createAdminSession === "function") {
+                var sessionResult = await window.PySyncClient.createAdminSession(password);
+                if (!sessionResult || !sessionResult.ok) {
+                  localStorage.removeItem("isAdminLoggedIn");
+                  if (fEl) {
+                    fEl.className = "text-sm font-medium text-red-700";
+                    fEl.textContent = "Güvenli veritabanı oturumu kurulamadı. Lütfen tekrar giriş yapın.";
+                  }
+                  return false;
+                }
               }
             } catch (_syncErr) { /* ignore */ }
             if (fEl) {

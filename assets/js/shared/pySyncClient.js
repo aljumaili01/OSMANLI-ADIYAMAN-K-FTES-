@@ -27,7 +27,7 @@
   // Okuma (public endpoint) /api/db/sync veya /api/db/{table}
   async function _safeFetch(method, urlSuffix, bodyObj, needSecret) {
     const headers = { 'Accept': 'application/json' };
-    const opts = { method: method, credentials: 'omit', headers: headers };
+    const opts = { method: method, credentials: 'same-origin', headers: headers };
     if (bodyObj) {
       headers['Content-Type'] = 'application/json; charset=utf-8';
       opts.body = JSON.stringify(bodyObj);
@@ -100,6 +100,15 @@
     return { ok: false, offline: r.offline || false, unauthorized: r.unauthorized || false, status: r.status };
   }
 
+  async function createAdminSession(password) {
+    const r = await _safeFetch('POST', '/session', { password: String(password || '') }, false);
+    return { ok: Boolean(r.ok && r.data && r.data.ok), status: r.status, unauthorized: r.unauthorized || false };
+  }
+
+  async function endAdminSession() {
+    return await _safeFetch('DELETE', '/session', null, false);
+  }
+
   // Admin SİL: Tablo satırını sil (secret required)
   async function deleteTable(table) {
     const r = await _safeFetch('DELETE', '/' + encodeURIComponent(table), null, true);
@@ -141,6 +150,8 @@
     syncFullSnapshot: syncFullSnapshot,
     readTable: readTable,
     writeTable: writeTable,
+    createAdminSession: createAdminSession,
+    endAdminSession: endAdminSession,
     deleteTable: deleteTable,
     setStoredSecret: setStoredSecret,
     getStoredSecret: getStoredSecret,

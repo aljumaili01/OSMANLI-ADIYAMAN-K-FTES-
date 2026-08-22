@@ -272,11 +272,17 @@ function initializeAdminDashboard() {
 }
 
 
-function handleLogout() {
+async function handleLogout() {
   localStorage.removeItem(AUTH_FLAG_KEY);
   sessionStorage.removeItem(ADMIN_TAB_KEY);
   try { localStorage.removeItem("ckft_admin_login_time"); } catch (_) {}
   try { localStorage.removeItem("ckft_py_db_api_secret_cache_v1"); } catch (_) {}
+
+  try {
+    if (window.PySyncClient && typeof window.PySyncClient.endAdminSession === "function") {
+      await window.PySyncClient.endAdminSession();
+    }
+  } catch (_) {}
 
   try {
     window.location.replace("/admin-login.html?logout=1");

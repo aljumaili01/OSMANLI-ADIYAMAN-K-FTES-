@@ -27,7 +27,7 @@
   // Okuma (public endpoint) /api/db/sync veya /api/db/{table}
   async function _safeFetch(method, urlSuffix, bodyObj, needSecret) {
     const headers = { 'Accept': 'application/json' };
-    const opts = { method: method, credentials: 'same-origin', headers: headers };
+    const opts = { method: method, credentials: 'same-origin', cache: 'no-store', headers: headers };
     if (bodyObj) {
       headers['Content-Type'] = 'application/json; charset=utf-8';
       opts.body = JSON.stringify(bodyObj);

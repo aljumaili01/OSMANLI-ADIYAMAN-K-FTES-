@@ -12,8 +12,8 @@ import {
   getSiteContent,
   initializeData,
   initializeDataServerFirstIfPossible,
-} from "./shared/data.js?v=20260822-v24";
-import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260822-v24";
+} from "./shared/data.js?v=20260822-v25";
+import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260822-v25";
 const EXPECTED_BUILD = "20260821-v6";
 if (typeof CURRENT_DATA_VERSION === "string" && CURRENT_DATA_VERSION !== EXPECTED_BUILD) {
   try { window.location.reload(true); } catch (_) { try { location.href = location.href; } catch (__) {} }
@@ -87,6 +87,34 @@ if (typeof window !== "undefined") {
   } else {
     runFlow();
   }
+})();
+
+/* Mobil tarayıcı geri dönüşlerinde sayfa bellekten açılabilir. Görünür hale
+ * geldiğinde Supabase'deki son veriyi yeniden alıp dinamik alanları yenile. */
+(function keepMobileDataFresh() {
+  let lastRefreshAt = 0;
+  let refreshInProgress = false;
+  async function refreshLatestData() {
+    if (refreshInProgress || Date.now() - lastRefreshAt < 5000) return;
+    refreshInProgress = true;
+    lastRefreshAt = Date.now();
+    try {
+      const result = await initializeDataServerFirstIfPossible();
+      if (result && result.serverFirstApplied) {
+        try { rerenderAllDynamicSections(); } catch (_) { __safeMainRender("mobile-server-refresh"); }
+      }
+    } catch (_) {
+      /* çevrimdışıyken mevcut veri korunur */
+    } finally {
+      refreshInProgress = false;
+    }
+  }
+  window.addEventListener("pageshow", function (event) {
+    if (event && event.persisted) refreshLatestData();
+  });
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible") refreshLatestData();
+  });
 })();
 
 (function bootstrapSiteSyncFallback() {

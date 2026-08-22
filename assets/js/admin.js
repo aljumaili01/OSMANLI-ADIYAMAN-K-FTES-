@@ -23,6 +23,7 @@ import {
   saveDealers,
   saveDealersConfirmed,
   saveFranchisePackages,
+  saveFranchisePackagesConfirmed,
   savePageTitles,
   saveProducts,
   saveSiteContent,
@@ -31,8 +32,8 @@ import {
   statusClassName,
   updateAdminPassword,
   updateFranchisePackage,
-} from "./shared/data.js?v=20260822-v24";
-import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260822-v24";
+} from "./shared/data.js?v=20260822-v25";
+import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260822-v25";
 const EXPECTED_BUILD_ADMIN = "20260821-v6";
 if (typeof CURRENT_DATA_VERSION === "string" && CURRENT_DATA_VERSION !== EXPECTED_BUILD_ADMIN) {
   try { window.location.reload(true); } catch (_) { location.href = location.href; }
@@ -728,7 +729,7 @@ function renderAdminMediaPreview(mediaUrl, mediaType, altText, className) {
   return "<img src=\"" + escapeAttribute(mediaUrl) + "\" alt=\"" + escapeAttribute(altText) + "\" class=\"" + escapeAttribute(cls) + "\" loading=\"lazy\" decoding=\"async\" />";
 }
 
-function handlePackageSave(event) {
+async function handlePackageSave(event) {
   event.preventDefault();
   if (!elements.packageForm) return;
 
@@ -750,12 +751,20 @@ function handlePackageSave(event) {
   }
 
   state.franchisePackages = getFranchisePackages();
+  const savePromise = saveFranchisePackagesConfirmed(state.franchisePackages);
   resetPackageForm();
-  setTextContent(elements.packageFormFeedback, "Bayilik paketi başarıyla kaydedildi.");
+  setTextContent(elements.packageFormFeedback, "Paket ekranda güncellendi; veritabanına kaydediliyor…");
   renderDashboard();
+  const result = await savePromise;
+  setTextContent(
+    elements.packageFormFeedback,
+    result && result.ok
+      ? "Bayilik paketi veritabanına kaydedildi; telefonlarda da güncel görünecek."
+      : "Paket bu tarayıcıda güncellendi ancak veritabanına kaydedilemedi. Lütfen yeniden giriş yapıp tekrar deneyin."
+  );
 }
 
-function handleInlinePackageSave(event) {
+async function handleInlinePackageSave(event) {
   event.preventDefault();
   const form = event.currentTarget;
   if (!(form instanceof HTMLFormElement)) return;
@@ -770,7 +779,15 @@ function handleInlinePackageSave(event) {
 
   updateFranchisePackage(packageId, payload);
   state.franchisePackages = getFranchisePackages();
+  const savePromise = saveFranchisePackagesConfirmed(state.franchisePackages);
   renderDashboard();
+  const result = await savePromise;
+  setTextContent(
+    elements.packageFormFeedback,
+    result && result.ok
+      ? "Bayilik paketi veritabanına kaydedildi; telefonlarda da güncel görünecek."
+      : "Paket veritabanına kaydedilemedi. Lütfen yeniden giriş yapıp tekrar deneyin."
+  );
 }
 
 function buildPackagePayload(formData, packageId = null, sourceForm = null) {

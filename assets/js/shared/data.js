@@ -1166,6 +1166,26 @@ function normalizeDealerNames(dealers) {
   });
 }
 
+export async function saveFranchisePackagesConfirmed(packages) {
+  const normalized = normalizePackageVisibility(Array.isArray(packages) ? packages : []);
+  const localOk = storageWriteJson(STORAGE_KEYS.franchisePackages, normalized);
+  const sync = _getPySyncClient();
+  if (!sync || typeof sync.writeTable !== "function") {
+    return { ok: false, localOk: localOk, serverOk: false, offline: true, status: 0 };
+  }
+  try {
+    const result = await sync.writeTable("franchise_packages", normalized);
+    return {
+      ...(result && typeof result === "object" ? result : {}),
+      ok: Boolean(result && result.ok),
+      localOk: localOk,
+      serverOk: Boolean(result && result.ok),
+    };
+  } catch (error) {
+    return { ok: false, localOk: localOk, serverOk: false, offline: true, status: 0 };
+  }
+}
+
 export function getDealers() {
   const raw = safeStorageGet(STORAGE_KEYS.dealers, null);
   if (raw !== null) {

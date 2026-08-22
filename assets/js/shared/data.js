@@ -1039,6 +1039,44 @@ export function getFranchisePackages() {
   return out.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 }
 
+/** Yalnız bayi listesini sunucudan alır; mobilde büyük tam site paketini bekletmez. */
+export async function refreshDealersServerFirst() {
+  const sync = _getPySyncClient();
+  if (!sync || typeof sync.readTable !== "function") {
+    return { ok: false, fallback: true, reason: "Veri bağlantısı hazır değil." };
+  }
+  try {
+    const result = await sync.readTable("dealers");
+    if (result && result.ok && Array.isArray(result.payload)) {
+      const normalized = normalizeDealerNames(result.payload);
+      const written = storageWriteJson(STORAGE_KEYS.dealers, normalized);
+      return { ok: true, serverFirstApplied: true, written: written, count: normalized.length };
+    }
+    return { ok: false, fallback: true, status: result && result.status };
+  } catch (error) {
+    return { ok: false, fallback: true, status: 0 };
+  }
+}
+
+/** Yalnız bayilik paketlerini sunucudan alır; mobil başvuru sayfasını hızlandırır. */
+export async function refreshFranchisePackagesServerFirst() {
+  const sync = _getPySyncClient();
+  if (!sync || typeof sync.readTable !== "function") {
+    return { ok: false, fallback: true, reason: "Veri bağlantısı hazır değil." };
+  }
+  try {
+    const result = await sync.readTable("franchise_packages");
+    if (result && result.ok && Array.isArray(result.payload)) {
+      const normalized = normalizePackageVisibility(result.payload);
+      const written = storageWriteJson(STORAGE_KEYS.franchisePackages, normalized);
+      return { ok: true, serverFirstApplied: true, written: written, count: normalized.length };
+    }
+    return { ok: false, fallback: true, status: result && result.status };
+  } catch (error) {
+    return { ok: false, fallback: true, status: 0 };
+  }
+}
+
 function normalizePackageVisibility(packages) {
   return packages.map(function (pkg) {
     if (!pkg || typeof pkg !== "object") return pkg;

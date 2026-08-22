@@ -12,8 +12,10 @@ import {
   getSiteContent,
   initializeData,
   initializeDataServerFirstIfPossible,
-} from "./shared/data.js?v=20260822-v26";
-import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260822-v26";
+  refreshDealersServerFirst,
+  refreshFranchisePackagesServerFirst,
+} from "./shared/data.js?v=20260822-v27";
+import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260822-v27";
 const EXPECTED_BUILD = "20260821-v6";
 if (typeof CURRENT_DATA_VERSION === "string" && CURRENT_DATA_VERSION !== EXPECTED_BUILD) {
   try { window.location.reload(true); } catch (_) { try { location.href = location.href; } catch (__) {} }
@@ -44,9 +46,17 @@ if (typeof window !== "undefined") {
  * ========================================================================== */
 (function bootstrapSiteAsync() {
   function runFlow() {
-    const initPromise = (typeof initializeDataServerFirstIfPossible === "function")
-      ? initializeDataServerFirstIfPossible()
-      : Promise.resolve({ serverFirstApplied: false, fallback: true, reason: "Yöntem yok" });
+    currentPath = __extractCurrentPath();
+    let initPromise;
+    if ((currentPath === "bayilerimiz.html" || currentPath === "index.html") && typeof refreshDealersServerFirst === "function") {
+      initPromise = refreshDealersServerFirst();
+    } else if (currentPath === "bayilik-basvurusu.html" && typeof refreshFranchisePackagesServerFirst === "function") {
+      initPromise = refreshFranchisePackagesServerFirst();
+    } else {
+      initPromise = (typeof initializeDataServerFirstIfPossible === "function")
+        ? initializeDataServerFirstIfPossible()
+        : Promise.resolve({ serverFirstApplied: false, fallback: true, reason: "Yöntem yok" });
+    }
 
     initPromise
       .then(function (initResult) {
@@ -99,7 +109,12 @@ if (typeof window !== "undefined") {
     refreshInProgress = true;
     lastRefreshAt = Date.now();
     try {
-      const result = await initializeDataServerFirstIfPossible();
+      currentPath = __extractCurrentPath();
+      const result = (currentPath === "bayilerimiz.html" || currentPath === "index.html")
+        ? await refreshDealersServerFirst()
+        : currentPath === "bayilik-basvurusu.html"
+          ? await refreshFranchisePackagesServerFirst()
+          : await initializeDataServerFirstIfPossible();
       if (result && result.serverFirstApplied) {
         try { rerenderAllDynamicSections(); } catch (_) { __safeMainRender("mobile-server-refresh"); }
       }

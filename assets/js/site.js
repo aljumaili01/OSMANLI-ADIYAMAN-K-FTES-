@@ -12,8 +12,8 @@ import {
   getSiteContent,
   initializeData,
   initializeDataServerFirstIfPossible,
-} from "./shared/data.js?v=20260822-v20";
-import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260822-v20";
+} from "./shared/data.js?v=20260822-v22";
+import { CURRENT_DATA_VERSION } from "./shared/data.js?v=20260822-v22";
 const EXPECTED_BUILD = "20260821-v6";
 if (typeof CURRENT_DATA_VERSION === "string" && CURRENT_DATA_VERSION !== EXPECTED_BUILD) {
   try { window.location.reload(true); } catch (_) { try { location.href = location.href; } catch (__) {} }
@@ -488,6 +488,8 @@ function renderDealersPage() {
           src="${escapeAttr(src)}"
           alt="${escapeAttr(dealer.branchName)} şube görseli"
           class="h-full w-full object-cover"
+          loading="lazy"
+          decoding="async"
         />
       `;
     }
@@ -506,7 +508,7 @@ function renderDealersPage() {
   const draw = () => {
     const dealers = getDealers();
 
-    dealerList.innerHTML = dealers
+    const dealerCards = dealers
       .map(
         (dealer) => `
           <article class="site-card flex flex-col overflow-hidden rounded-[28px] border border-stone-200 bg-white">
@@ -552,8 +554,24 @@ function renderDealersPage() {
             </div>
           </article>
         `
-      )
-      .join("");
+      );
+
+    const renderToken = String(Date.now()) + Math.random().toString(36).slice(2);
+    dealerList.dataset.renderToken = renderToken;
+    dealerList.innerHTML = dealerCards.slice(0, 2).join("");
+
+    const remainingCards = dealerCards.slice(2);
+    if (remainingCards.length) {
+      const appendRemaining = function () {
+        if (dealerList.dataset.renderToken !== renderToken) return;
+        dealerList.insertAdjacentHTML("beforeend", remainingCards.join(""));
+      };
+      if (typeof window.requestIdleCallback === "function") {
+        window.requestIdleCallback(appendRemaining, { timeout: 350 });
+      } else {
+        window.setTimeout(appendRemaining, 80);
+      }
+    }
 
     if (!dealers.length) {
       dealerList.innerHTML = `
